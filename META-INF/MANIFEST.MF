@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: CodeViz
+Bundle-SymbolicName: com.codeviz.codeviz;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: CODEVIZ
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
