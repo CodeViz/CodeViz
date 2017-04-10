@@ -162,6 +162,7 @@ public class VisualizerView extends ViewPart {
 		String associates = "";
 		String interfaces = "";
 		
+		Display.getDefault().asyncExec(() -> label.setText("Parsing..."));
 		ClassReader.parseClass(class_name);
 		
 		text += "Class: " + class_name + "\n===============\n";
