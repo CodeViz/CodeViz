@@ -15,6 +15,13 @@
             class="com.codeviz.codeviz.views.VisualizerView"
             id="com.codeviz.codeviz.views.VisualizerView">
       </view>
+      <view
+            category="com.codeviz.codeviz"
+            class="com.codeviz.codeviz.views.DiagramView"
+            id="com.codeviz.codeviz.diagramView"
+            name="DiagramView"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
