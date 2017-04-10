@@ -3,8 +3,17 @@ package com.codeviz.codeviz.views;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.graphics.Drawable;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.GCData;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -38,12 +47,12 @@ import com.codeviz.codeviz.Parser.ClassReader;
  * <p>
  */
 
-public class DiagramView extends ViewPart {
+public class DiagramView extends ViewPart implements Drawable {
 
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
-	public static final String ID = "com.codeviz.codeviz.views.VisualizerView";
+	public static final String ID = "com.codeviz.codeviz.views.DiagramView";
 	
 	private class PartListener implements IPartListener2 {
 		@Override
@@ -121,10 +130,9 @@ public class DiagramView extends ViewPart {
 	
 	@Override
 	public void createPartControl(Composite parent) {
-		label = new Text(parent, SWT.WRAP);
-		label.setText("Hello World");
+//		label = new Text(parent, SWT.WRAP);
+//		label.setText("Hello World!, Really?!");
 		// getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(mylistener);
-
 		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		IEditorPart editor = activePage.getActiveEditor();
 		IEditorInput input = editor == null ? null : editor.getEditorInput();
@@ -136,22 +144,57 @@ public class DiagramView extends ViewPart {
 		}
 		
 		activePage.addPartListener(new PartListener());
+		Canvas canvas = new Canvas(parent, SWT.NONE);
+		
+
+		  canvas.addPaintListener(new PaintListener()
+		    {
+		      @Override
+		      public void paintControl(final PaintEvent event)
+		      {
+		        GC gc = event.gc;
+
+		        gc.drawLine(0, 0, 100, 100);
+		        gc.drawLine(100, 0, 0, 100);
+		      }
+		    });
+
+		
 	}
 	
 	
 	private void parseFile(IPath path) {
 		
 		String src = path.toOSString().replaceAll("(.*src).*", "$1");
-//		System.out.println(src);
+		System.out.println(src);
+//		Display.getDefault().asyncExec(() -> label.setText(path.toString()));
 		
-		String className = path.segment(path.segmentCount()-1).replace(".java", "");
-		if(src.equals(parsedSrc)){
-			readClassInfo(className);
-		} else {
-			ClassReader.readClasses(src);
-			parsedSrc = src;
-			readClassInfo(className);
-		}
+		
+		
+//		Shell shell = Display.getDefault().getActiveShell(); 
+//		shell.setLayout(new FillLayout());
+//		final Canvas canvas = new Canvas(shell,SWT.NO_REDRAW_RESIZE);
+//		GC gc = new GC(shell);
+//		gc.drawLine(0, 0, 30, 40);
+//
+//		    canvas.addPaintListener(new PaintListener() { 
+//		        public void paintControl(PaintEvent e) { 
+//		            Rectangle clientArea = canvas.getClientArea(); 
+////		            e.gc.setBackground(SWT.COLOR_CYAN); 
+//		         e.gc.fillOval(0,0,10,10); 
+//		        }
+//
+//				
+//		    });
+		
+//		String className = path.segment(path.segmentCount()-1).replace(".java", "");
+//		if(src.equals(parsedSrc)){
+//			readClassInfo(className);
+//		} else {
+//			ClassReader.readClasses(src);
+//			parsedSrc = src;
+//			readClassInfo(className);
+//		}
 		
 	}
 	
@@ -205,6 +248,24 @@ public class DiagramView extends ViewPart {
 	public void dispose() {
 		getSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(mylistener);
 		super.dispose();
+	}
+
+	@Override
+	public long internal_new_GC(GCData data) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void internal_dispose_GC(long handle, GCData data) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isAutoScalable() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
