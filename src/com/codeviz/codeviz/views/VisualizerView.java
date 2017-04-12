@@ -128,18 +128,10 @@ public class VisualizerView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		label = new Text(parent, SWT.WRAP);
 		label.setText("Hello World");
-		// getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(mylistener);
+
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
 		
 		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		IEditorPart editor = activePage.getActiveEditor();
-		IEditorInput input = editor == null ? null : editor.getEditorInput();
-		IPath path = input instanceof IPathEditorInput ? ((IPathEditorInput) input).getPath() : null;
-		if (path != null) {
-			
-			new Thread( () -> parseFile(path) ).start();
-			
-		}
 		
 		activePage.addPartListener(new PartListener());
 	}
