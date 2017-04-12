@@ -1,14 +1,18 @@
 package com.codeviz.codeviz.views;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
+import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.osgi.service.event.Event;
 
 import com.codeviz.codeviz.Parser.ClassReader;
 
@@ -38,6 +42,8 @@ public class DiagramView extends ViewPart {
 	 */
 	public static final String ID = "com.codeviz.codeviz.views.DiagramView";
 
+	private IEventBroker eventBroker;
+	
 	String parsedSrc = "";
 
 	private Canvas canvas;
@@ -52,6 +58,9 @@ public class DiagramView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
+		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
+		eventBroker.subscribe(EventTopic.PARSER_DONE, (e) -> prepareDiagram(e));
+		
 		canvas = new Canvas(parent, SWT.NONE);
 
 		canvas.addPaintListener(new PaintListener() {
@@ -64,16 +73,15 @@ public class DiagramView extends ViewPart {
 		canvas.redraw();
 
 	}
+	public void prepareDiagram(Event e) {
 
-	public void prepareDiagram(String class_name) {
+		parent = ClassReader.readParent();
 
-		parent = ClassReader.readParent(class_name);
+		children = ClassReader.readChildren();
 
-		children = ClassReader.readChildren(class_name);
+		interfaces = ClassReader.readInterfaces();
 
-		interfaces = ClassReader.readInterfaces(class_name);
-
-		associations = ClassReader.readAssociations(class_name);
+		associations = ClassReader.readAssociations();
 
 	}
 

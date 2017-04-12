@@ -5,7 +5,9 @@ Bundle-SymbolicName: com.codeviz.codeviz;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: CODEVIZ
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.ui
+ org.eclipse.ui,
+ org.eclipse.e4.core.services;bundle-version="2.0.100",
+ org.eclipse.osgi.services;bundle-version="3.5.100"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: Libs/guava-21.0.jar,
  Libs/java-symbol-solver-core-0.5.3.jar,
