@@ -127,7 +127,7 @@ public class VisualizerView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		label = new Text(parent, SWT.WRAP);
-		label.setText("Hello World");
+		label.setText("Open a java file to parse it.");
 
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
 		
