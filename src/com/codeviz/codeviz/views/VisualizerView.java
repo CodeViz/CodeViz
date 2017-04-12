@@ -1,6 +1,7 @@
 package com.codeviz.codeviz.views;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -44,6 +45,10 @@ public class VisualizerView extends ViewPart {
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "com.codeviz.codeviz.views.VisualizerView";
+	
+	
+	private IEventBroker eventBroker;
+	
 	
 	private class PartListener implements IPartListener2 {
 		@Override
@@ -124,6 +129,8 @@ public class VisualizerView extends ViewPart {
 		label = new Text(parent, SWT.WRAP);
 		label.setText("Hello World");
 
+		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
+		
 		IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		
 		activePage.addPartListener(new PartListener());
@@ -153,20 +160,21 @@ public class VisualizerView extends ViewPart {
 		String associates = "";
 		String interfaces = "";
 		
+		Display.getDefault().asyncExec(() -> label.setText("Parsing..."));
 		ClassReader.parseClass(class_name);
 		
 		text += "Class: " + class_name + "\n===============\n";
 		
-		if(!ClassReader.readParent(class_name).isEmpty())
-			text += "Parent: " + ClassReader.readParent(class_name) + "\n";
+		if(!ClassReader.readParent().isEmpty())
+			text += "Parent: " + ClassReader.readParent() + "\n";
 		
-		for( String child : ClassReader.readChildren(class_name))
+		for( String child : ClassReader.readChildren())
 			children += "   - " + child + "\n";
 		
-		for( String intfc : ClassReader.readInterfaces(class_name))
+		for( String intfc : ClassReader.readInterfaces())
 			interfaces += "   - " + intfc + "\n";
 		
-		for ( String associate : ClassReader.readAssociations(class_name))
+		for ( String associate : ClassReader.readAssociations())
 			associates += "   - " + associate+"\n";
 		
 		
@@ -179,11 +187,11 @@ public class VisualizerView extends ViewPart {
 		if(!associates.isEmpty())
 			text += "Associates: \n" + associates;
 		
-		System.out.println(text);
+//		System.out.println(text);
 		final String fText = text;
 		
 		Display.getDefault().asyncExec(() -> label.setText(fText));
-		
+		eventBroker.post(EventTopic.PARSER_DONE, class_name);
 	}
 	
 	

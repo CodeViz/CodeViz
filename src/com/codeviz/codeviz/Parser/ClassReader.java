@@ -18,19 +18,19 @@ public class ClassReader {
 		return new LinkedList<>(Parser.readClasses(folder));
 	}
 	
-	public static String readParent(String class_name){
+	public static String readParent(){
 		return Parser.getParent();
 	}
 	
-	public static LinkedList<String> readChildren(String class_name){
+	public static LinkedList<String> readChildren(){
 		return Parser.getChildren();
 	}	
 	
-	public static LinkedList<String> readInterfaces(String class_name){
+	public static LinkedList<String> readInterfaces(){
 		return Parser.getInterfaces();
 	}
 	
-	public static LinkedList<String> readAssociations(String class_name){
+	public static LinkedList<String> readAssociations(){
 		return Parser.getAssociations();
 	}
 

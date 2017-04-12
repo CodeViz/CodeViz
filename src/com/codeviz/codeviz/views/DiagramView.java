@@ -1,0 +1,213 @@
+package com.codeviz.codeviz.views;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+
+import org.eclipse.e4.core.services.events.IEventBroker;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.ViewPart;
+import org.osgi.service.event.Event;
+
+import com.codeviz.codeviz.Parser.ClassReader;
+
+
+/**
+ * This sample class demonstrates how to plug-in a new
+ * workbench view. The view shows data obtained from the
+ * model. The sample creates a dummy model on the fly,
+ * but a real implementation would connect to the model
+ * available either in this or another plug-in (e.g. the workspace).
+ * The view is connected to the model using a content provider.
+ * <p>
+ * The view uses a label provider to define how model
+ * objects should be presented in the view. Each
+ * view can present the same model objects using
+ * different labels and icons, if needed. Alternatively,
+ * a single label provider can be shared between views
+ * in order to ensure that objects of the same type are
+ * presented in the same way everywhere.
+ * <p>
+ */
+
+public class DiagramView extends ViewPart {
+
+	/**
+	 * The ID of the view as specified by the extension.
+	 */
+	public static final String ID = "com.codeviz.codeviz.views.DiagramView";
+	
+	public static final int CLASS_WIDTH = 100;
+	public static final int CLASS_HEIGHT = 30;
+	private static final int V_MARGIN = 4;
+	private static final int H_MARGIN = 5;
+	
+	
+	private static final Color color1 = Display.getCurrent().getSystemColor(SWT.COLOR_LIST_SELECTION);
+	
+	private IEventBroker eventBroker;
+	
+	String parsedSrc = "";
+
+	private Canvas canvas;
+
+	private String className = "";
+	private String parent = "";
+	private LinkedList<String> children = new LinkedList<>();
+	private LinkedList<String> interfaces = new LinkedList<>();
+	private LinkedList<String> associations = new LinkedList<>();
+
+	private ScrolledComposite scrolledComposite;
+
+	public DiagramView() {
+	}
+
+	@Override
+	public void createPartControl(Composite parent) {
+		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
+		eventBroker.subscribe(EventTopic.PARSER_DONE, (e) -> prepareDiagram(e));
+		
+		scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		scrolledComposite.setExpandVertical(false);
+		scrolledComposite.setExpandHorizontal(false);
+		
+		canvas = new Canvas(scrolledComposite, SWT.NONE);
+
+		scrolledComposite.setContent(canvas);
+		Point point = canvas.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+		canvas.setSize(point);
+		scrolledComposite.setMinSize(point);
+		
+
+		canvas.addPaintListener((e) -> paintControl(e));
+		
+
+	}
+	public void prepareDiagram(Event e) {
+		
+		className = (String) e.getProperty(e.getPropertyNames()[0]);
+		
+		parent = ClassReader.readParent();
+
+		children = ClassReader.readChildren();
+
+		interfaces = ClassReader.readInterfaces();
+
+		associations = ClassReader.readAssociations();
+		
+		int startX = 5, startY = 5;
+		
+		int width  = (Math.max(1 + interfaces.size(), children.size()) + 2) * (CLASS_WIDTH + H_MARGIN * 2) + startX;
+		int height = (int) (Math.ceil(associations.size() / 2d) + 2) * (CLASS_HEIGHT + V_MARGIN * 2) + startY;
+		
+		canvas.setBounds(0, 0, width, height);
+		
+		Point point = new Point(width, height);
+		canvas.setSize(point);
+		scrolledComposite.setMinSize(point);
+		
+		canvas.redraw();
+	}
+	
+	public void paintControl(PaintEvent event) {
+		GC gc = event.gc;
+		
+		
+		
+		if(className.isEmpty()) return;
+		
+		int startX = 5, startY = 5;
+		
+		int width  = (Math.max(1 + interfaces.size(), children.size()) + 2) * (CLASS_WIDTH + H_MARGIN * 2) + startX;
+		int height = (int) (Math.ceil(associations.size() / 2.0) + 2) * (CLASS_HEIGHT + V_MARGIN * 2) + startY;
+		
+		
+		int textHeight = gc.getFont().getFontData()[0].getHeight();
+		
+		gc.setBackground(color1);
+		
+		
+		// Point of interest (class)
+		int x = width / 2 - CLASS_WIDTH / 2, y = height / 2 - CLASS_HEIGHT / 2;
+		gc.fillRoundRectangle(x, y, CLASS_WIDTH, CLASS_HEIGHT, 5, 5);
+		gc.drawText(stringTrancate(className), x + 10, y + CLASS_HEIGHT / 2 - textHeight, true);
+		
+		
+		// Parent and Interfaces
+		x = CLASS_WIDTH + startX + H_MARGIN * 3; y = startY + V_MARGIN;
+		if(parent.isEmpty()) {
+			parent = "Object";
+		}
+		gc.fillRoundRectangle(x, y, CLASS_WIDTH, CLASS_HEIGHT, 5, 5);
+		gc.drawText(stringTrancate(parent), x + 10, y + CLASS_HEIGHT / 2 - textHeight, true);
+		
+		for (String string : interfaces) {
+			x += CLASS_WIDTH + H_MARGIN * 2;
+			
+			gc.fillRoundRectangle(x, y, CLASS_WIDTH, CLASS_HEIGHT, 5, 5);
+			gc.drawText(stringTrancate(string), x + 10, y + CLASS_HEIGHT / 2 - textHeight, true);
+		}
+		
+		
+		
+		// Associations
+		x = startX + H_MARGIN; y += CLASS_HEIGHT + V_MARGIN * 2-1;
+		int i = 0, l = (int) Math.ceil(associations.size() / 2.0) - 1;
+		for (String string : associations) {
+			gc.fillRoundRectangle(x, y, CLASS_WIDTH, CLASS_HEIGHT, 5, 5);
+			gc.drawText(stringTrancate(string), x + 10, y + CLASS_HEIGHT / 2 - textHeight, true);
+			
+			y += CLASS_HEIGHT + V_MARGIN * 2;
+			if(i == l){
+				x = width - (CLASS_WIDTH + startX + H_MARGIN * 2);
+				y = CLASS_HEIGHT + startY + V_MARGIN * 3;
+			}
+			i++;
+		}
+		
+		if(associations.size() % 2 == 1)
+			y += CLASS_HEIGHT + V_MARGIN * 2;
+		
+		
+		// Children
+		x = CLASS_WIDTH + startX + H_MARGIN * 2; // y += CLASS_HEIGHT + V_MARGIN * 2;
+		for (String string : children) {
+			gc.fillRoundRectangle(x, y, CLASS_WIDTH, CLASS_HEIGHT, 5, 5);
+			gc.drawText(stringTrancate(string), x + 10, y + CLASS_HEIGHT / 2 - textHeight + 3 , true);
+			
+			x += CLASS_WIDTH + H_MARGIN * 2;
+			
+		}
+		
+	}
+	
+	private String stringTrancate(String str) {
+		return stringTrancate(str, 11);
+	}
+	
+	private String stringTrancate(String str, int size) {
+		return str.length() > size? str.substring(0, size) + "…" : str;
+	}
+	
+	@Override
+	public void setFocus() {
+		
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+	}
+
+}
