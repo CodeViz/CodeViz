@@ -8,6 +8,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
@@ -18,6 +20,13 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.service.event.Event;
+import org.eclipse.zest.core.widgets.Graph;
+import org.eclipse.zest.core.widgets.GraphConnection;
+import org.eclipse.zest.core.widgets.GraphNode;
+import org.eclipse.zest.core.widgets.ZestStyles;
+import org.eclipse.zest.layouts.LayoutStyles;
+import org.eclipse.zest.layouts.algorithms.SpringLayoutAlgorithm;
+import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
 
 import com.codeviz.codeviz.Parser.ClassReader;
 
@@ -51,6 +60,7 @@ public class DiagramView extends ViewPart {
 	public static final int CLASS_HEIGHT = 30;
 	private static final int V_MARGIN = 4;
 	private static final int H_MARGIN = 5;
+	private Graph graph;
 	
 	
 	private static final Color color1 = Display.getCurrent().getSystemColor(SWT.COLOR_LIST_SELECTION);
@@ -74,6 +84,10 @@ public class DiagramView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
+		graph = new Graph(parent, SWT.NONE);
+		
+		
+		
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
 		eventBroker.subscribe(EventTopic.PARSER_DONE, (e) -> prepareDiagram(e));
 		
@@ -121,6 +135,8 @@ public class DiagramView extends ViewPart {
 	}
 	
 	public void paintControl(PaintEvent event) {
+		
+		zestDiagram();
 		GC gc = event.gc;
 		
 		
@@ -198,6 +214,65 @@ public class DiagramView extends ViewPart {
 	
 	private String stringTrancate(String str, int size) {
 		return str.length() > size? str.substring(0, size) + "…" : str;
+	}
+	
+	private void clearGraph( Graph graph )
+	{       
+	    Object[] objects = graph.getConnections().toArray() ;           
+	    for (int i = 0 ; i < objects.length; i++)
+	    {
+	        GraphConnection graCon = (GraphConnection) objects[i];
+	        if(!graCon.isDisposed())
+	            graCon.dispose();
+	    }            
+
+	    objects = graph.getNodes().toArray();       
+	    for (int i = 0; i < objects.length; i++)
+	    {
+	        GraphNode graNode = (GraphNode) objects[i];
+	        if(!graNode.isDisposed())
+	            graNode.dispose();
+	    }
+	}
+	
+	private void zestDiagram(){
+		clearGraph(this.graph);
+		GraphNode target_class = new GraphNode(this.graph, SWT.NONE ,className);
+		
+		GraphNode parent_class = new GraphNode(this.graph, SWT.NONE, parent);
+		
+		GraphConnection target_parent_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_DIRECTED, target_class, parent_class);
+		target_parent_connection.setText("Parent");
+		
+		for( String associate_name: associations){
+			GraphNode associate_class = new GraphNode(this.graph, SWT.NONE, associate_name);
+			GraphConnection target_associate_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_SOLID, target_class, associate_class);
+			target_associate_connection.setText("Association");
+		}
+		
+		for( String child_name: children){
+			GraphNode child_class = new GraphNode(this.graph, SWT.NONE, child_name);
+			GraphConnection target_child_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_DIRECTED, child_class, target_class);
+			target_child_connection.setText("Child");
+		}
+		
+		for( String interface_name: interfaces){
+			GraphNode interface_comp = new GraphNode(this.graph, SWT.NONE, interface_name);
+			GraphConnection target_interface_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_DASH_DOT, target_class, interface_comp);
+			target_interface_connection.setText("Interface");
+		}
+		
+		
+		graph.setLayoutAlgorithm(new SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+				// Selection listener on graphConnect or GraphNode is not supported
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=236528
+		graph.addSelectionListener(new SelectionAdapter() {
+		        @Override
+		        public void widgetSelected(SelectionEvent e) {
+		                System.out.println(e);
+		        }
+		
+		});
 	}
 	
 	@Override
