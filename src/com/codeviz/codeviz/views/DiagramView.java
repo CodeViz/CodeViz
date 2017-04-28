@@ -236,6 +236,7 @@ public class DiagramView extends ViewPart {
 	}
 	
 	private void zestDiagram(){
+		//Create the Zest Diagram
 		clearGraph(this.graph);
 		GraphNode target_class = new GraphNode(this.graph, SWT.NONE ,className);
 		
