@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -92,6 +94,21 @@ public class DiagramView extends ViewPart {
 	                System.out.println(e);
 	        }
 	
+		});
+		graph.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				
+				Object selectedItem = graph.getSelection().get(0);
+				
+				if(selectedItem instanceof GraphNode){
+					GraphNode selectedNode = (GraphNode) selectedItem;
+					System.out.println(selectedNode.getText());
+				}
+				
+				super.mouseDoubleClick(e);
+			}
 		});
 		
 		
