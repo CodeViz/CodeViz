@@ -171,4 +171,15 @@ public class Parser {
 		
 	}
 
+	public static String getQualifiedName(String className) {
+		if(! classes.containsKey(className))
+			throw new IllegalArgumentException("Passed className "+className+" not found in package.");
+		
+		String prefix = "";
+		if(classes.get(className).cu.getPackageDeclaration().isPresent())
+			prefix = classes.get(className).cu.getPackageDeclaration().get().getNameAsString() + ".";
+		
+		return prefix + className;
+	}
+
 }

@@ -31,6 +31,7 @@ import org.eclipse.zest.layouts.algorithms.SpringLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
 
 import com.codeviz.codeviz.Parser.ClassReader;
+import com.codeviz.codeviz.Parser.JDTAdapter;
 
 
 /**
@@ -104,7 +105,10 @@ public class DiagramView extends ViewPart {
 				
 				if(selectedItem instanceof GraphNode){
 					GraphNode selectedNode = (GraphNode) selectedItem;
-					System.out.println(selectedNode.getText());
+					String selectedClassName = selectedNode.getText();
+					System.out.println(selectedClassName);
+					
+					JDTAdapter.openEditor(selectedClassName);
 				}
 				
 				super.mouseDoubleClick(e);
