@@ -86,6 +86,13 @@ public class DiagramView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		graph = new Graph(parent, SWT.NONE);
 		
+		graph.addSelectionListener(new SelectionAdapter() {
+	        @Override
+	        public void widgetSelected(SelectionEvent e) {
+	                System.out.println(e);
+	        }
+	
+		});
 		
 		
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
@@ -132,11 +139,11 @@ public class DiagramView extends ViewPart {
 		scrolledComposite.setMinSize(point);
 		
 		canvas.redraw();
+		zestDiagram();
 	}
 	
 	public void paintControl(PaintEvent event) {
 		
-		zestDiagram();
 		GC gc = event.gc;
 		
 		
@@ -267,13 +274,6 @@ public class DiagramView extends ViewPart {
 		graph.setLayoutAlgorithm(new SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
 				// Selection listener on graphConnect or GraphNode is not supported
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=236528
-		graph.addSelectionListener(new SelectionAdapter() {
-		        @Override
-		        public void widgetSelected(SelectionEvent e) {
-		                System.out.println(e);
-		        }
-		
-		});
 	}
 	
 	@Override
