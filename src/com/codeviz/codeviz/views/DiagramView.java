@@ -262,11 +262,14 @@ public class DiagramView extends ViewPart {
 	    for (int i = 0; i < objects.length; i++)
 	    {
 	        GraphNode graNode = (GraphNode) objects[i];
+	        String name = graNode.getText();
+	        if(name.equals(className) || name.equals(parent) || associations.contains(name) || children.contains(name) || interfaces.contains(name)) {} else {
 	        if(!graNode.isDisposed())
 	            graNode.dispose();
+	        nodesList.remove(name);
+	        }
 	    }
 	    
-	    nodesList.clear();
 	}
 	
 	private void zestDiagram(){
