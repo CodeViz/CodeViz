@@ -1,7 +1,9 @@
 package com.codeviz.codeviz.views;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.swt.SWT;
@@ -65,6 +67,8 @@ public class DiagramView extends ViewPart {
 	private static final int H_MARGIN = 5;
 	private Graph graph;
 	
+	
+	private Map<String, GraphNode> nodesList = new HashMap<>();
 	
 	private static final Color color1 = Display.getCurrent().getSystemColor(SWT.COLOR_LIST_SELECTION);
 	
@@ -261,32 +265,34 @@ public class DiagramView extends ViewPart {
 	        if(!graNode.isDisposed())
 	            graNode.dispose();
 	    }
+	    
+	    nodesList.clear();
 	}
 	
 	private void zestDiagram(){
 		//Create the Zest Diagram
 		clearGraph(this.graph);
-		GraphNode target_class = new GraphNode(this.graph, SWT.NONE ,className);
+		GraphNode target_class = createNode(className);
 		
-		GraphNode parent_class = new GraphNode(this.graph, SWT.NONE, parent);
+		GraphNode parent_class = createNode(parent);
 		
 		GraphConnection target_parent_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_DIRECTED, target_class, parent_class);
 		target_parent_connection.setText("Parent");
 		
 		for( String associate_name: associations){
-			GraphNode associate_class = new GraphNode(this.graph, SWT.NONE, associate_name);
+			GraphNode associate_class = createNode(associate_name);
 			GraphConnection target_associate_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_SOLID, target_class, associate_class);
 			target_associate_connection.setText("Association");
 		}
 		
 		for( String child_name: children){
-			GraphNode child_class = new GraphNode(this.graph, SWT.NONE, child_name);
+			GraphNode child_class = createNode(child_name);
 			GraphConnection target_child_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_DIRECTED, child_class, target_class);
 			target_child_connection.setText("Child");
 		}
 		
 		for( String interface_name: interfaces){
-			GraphNode interface_comp = new GraphNode(this.graph, SWT.NONE, interface_name);
+			GraphNode interface_comp = createNode(interface_name);
 			GraphConnection target_interface_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_DASH_DOT, target_class, interface_comp);
 			target_interface_connection.setText("Interface");
 		}
@@ -295,6 +301,15 @@ public class DiagramView extends ViewPart {
 		graph.setLayoutAlgorithm(new SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
 				// Selection listener on graphConnect or GraphNode is not supported
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=236528
+	}
+
+	private GraphNode createNode(String className) {
+		
+		if(! nodesList.containsKey(className))
+			nodesList.put(className, new GraphNode(this.graph, SWT.NONE, className));
+		
+		
+		return nodesList.get(className);
 	}
 	
 	@Override
