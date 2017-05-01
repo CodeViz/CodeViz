@@ -285,6 +285,10 @@ public class DiagramView extends ViewPart {
 		}
 		
 		for( String associate_name: associations){
+			if(parent.equals(associate_name)  || interfaces.contains(associate_name) || children.contains(associate_name)) {
+				continue;
+			}
+			
 			GraphNode associate_class = createNode(associate_name);
 			GraphConnection target_associate_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_SOLID, target_class, associate_class);
 			target_associate_connection.setText("Association");
