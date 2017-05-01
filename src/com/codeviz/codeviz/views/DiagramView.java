@@ -274,10 +274,12 @@ public class DiagramView extends ViewPart {
 		clearGraph(this.graph);
 		GraphNode target_class = createNode(className);
 		
-		GraphNode parent_class = createNode(parent);
 		
-		GraphConnection target_parent_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_DIRECTED, target_class, parent_class);
-		target_parent_connection.setText("Parent");
+		if(!parent.isEmpty()){
+			GraphNode parent_class = createNode(parent);
+			GraphConnection target_parent_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_DIRECTED, target_class, parent_class);
+			target_parent_connection.setText("Parent");
+		}
 		
 		for( String associate_name: associations){
 			GraphNode associate_class = createNode(associate_name);
