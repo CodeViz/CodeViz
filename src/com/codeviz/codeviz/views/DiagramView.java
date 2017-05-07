@@ -21,11 +21,13 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.service.event.Event;
 import org.eclipse.zest.core.widgets.Graph;
 import org.eclipse.zest.core.widgets.GraphConnection;
+import org.eclipse.zest.core.widgets.GraphContainer;
 import org.eclipse.zest.core.widgets.GraphNode;
 import org.eclipse.zest.core.widgets.ZestStyles;
 import org.eclipse.zest.layouts.LayoutStyles;
@@ -66,6 +68,9 @@ public class DiagramView extends ViewPart {
 	private static final int V_MARGIN = 4;
 	private static final int H_MARGIN = 5;
 	private Graph graph;
+	private static GraphNode methodsNode;
+	private static GraphNode attributesNode;
+	private static GraphContainer target_class;
 	
 	
 	private Map<String, GraphNode> nodesList = new HashMap<>();
@@ -101,6 +106,32 @@ public class DiagramView extends ViewPart {
 	
 		});
 		graph.addMouseListener(new MouseAdapter() {
+			
+//			public void mouseUp(MouseEvent e){
+//				Object selectedItem = graph.getSelection().get(0);				
+//				if(selectedItem instanceof GraphNode){
+//					if(methodsNode != null)
+//						methodsNode.dispose();
+//					if(attributesNode != null)
+//						attributesNode.dispose();
+//					methodsNode = new GraphNode(graph,SWT.NONE,"Methods");
+//					LinkedList<String> methodsList = (LinkedList<String>) ((GraphNode) selectedItem).getData("Methods");
+//					for(String s : methodsList ){
+//						GraphNode methodNode = new GraphNode(graph, SWT.NONE, s);
+//						GraphConnection methodConnection = new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED, (GraphNode) selectedItem, methodNode);
+//					}
+//					
+//					
+//	
+//					attributesNode = new GraphNode(graph,SWT.NONE,"Attributes");
+//					LinkedList<String> attributesList = (LinkedList<String>) ((GraphNode) selectedItem).getData("Methods");
+//					for(String s : attributesList ){
+//						GraphNode attributeNode = new GraphNode(graph, SWT.NONE, s);
+//						
+//						GraphConnection attributeConnection = new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED, (GraphNode) selectedItem, attributeNode);
+//					}
+//				}
+//			}
 
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
@@ -249,7 +280,11 @@ public class DiagramView extends ViewPart {
 	}
 	
 	private void clearGraph( Graph graph )
-	{       
+	{   
+		if(methodsNode != null)    
+			methodsNode.dispose();
+		if(attributesNode != null)
+			attributesNode.dispose();
 	    Object[] objects = graph.getConnections().toArray() ;           
 	    for (int i = 0 ; i < objects.length; i++)
 	    {
@@ -269,13 +304,41 @@ public class DiagramView extends ViewPart {
 	        nodesList.remove(name);
 	        }
 	    }
+	    if(target_class != null)
+	    	target_class.dispose();
+	    
+	   
 	    
 	}
 	
 	private void zestDiagram(){
 		//Create the Zest Diagram
 		clearGraph(this.graph);
-		GraphNode target_class = createNode(className);
+		
+		//Setting up target_class container
+		GraphContainer target_class = createContainer(className);
+		methodsNode = new GraphNode(target_class, SWT.NONE, "Methods"); 
+		attributesNode = new GraphNode(target_class, SWT.NONE, "Attributes");
+		nodesList.put(className, target_class);
+		//Filling attributes and methods with dummy data
+		LinkedList<String> attributes = new LinkedList<String>();
+		for(int i = 0; i < Math.random() * 20; i++){
+			attributes.add("Var "+i);
+			GraphNode attributeNode = new GraphNode(target_class, ZestStyles.NODES_FISHEYE | ZestStyles.NODES_HIDE_TEXT, attributes.get(i) );
+			new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED, attributesNode, attributeNode);
+		}
+		LinkedList<String> methods = new LinkedList<String>();
+		for(int i = 0; i < Math.random() * 20; i++){
+			methods.add("Method "+i);
+			GraphNode methodNode = new GraphNode(target_class, ZestStyles.NODES_FISHEYE | ZestStyles.NODES_HIDE_TEXT, methods.get(i) );
+			new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED, methodsNode, methodNode);
+		}
+		
+		
+		target_class.setLayoutAlgorithm(new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+		
+		target_class.setData("Attributes", attributes);
+		target_class.setData("Methods", methods);
 		
 		
 		if(!parent.isEmpty()){
@@ -319,6 +382,14 @@ public class DiagramView extends ViewPart {
 		
 		
 		return nodesList.get(className);
+	}
+	
+	private GraphContainer createContainer(String className){
+		return new GraphContainer(graph, SWT.NONE, className);
+	}
+	
+	private void addToContainer(GraphContainer graphContainer, String nodeName){
+		GraphNode node = new GraphNode(graphContainer,  ZestStyles.NODES_FISHEYE | ZestStyles.NODES_HIDE_TEXT, nodeName);
 	}
 	
 	@Override
