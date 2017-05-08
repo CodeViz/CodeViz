@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
@@ -134,6 +136,36 @@ public class ClassesOrInterfacesVisitor extends VoidVisitorAdapter<Object> {
 		String name = type.asReferenceType().getTypeDeclaration().getName();
 		if (!associations.contains(name)) {
 			associations.add(name);
+		}
+
+	}
+
+	@Override
+	public void visit(FieldDeclaration n, Object arg) {
+		super.visit(n, arg);
+		if (n.isFinal() && n.isStatic()) { // ignore final static attributes
+			return;
+		}
+
+		LinkedList<String> attributes = Parser.getAttributes();
+		for (VariableDeclarator vd : n.getVariables()) {
+			String name = vd.getNameAsString();
+			if (!attributes.contains(name)) {
+				attributes.add(name);
+			}
+		}
+
+	}
+
+	@Override
+	public void visit(com.github.javaparser.ast.body.MethodDeclaration n, Object arg) {
+		super.visit(n, arg);
+
+		LinkedList<String> methods = Parser.getMethods();
+
+		String name = n.getNameAsString();
+		if (!methods.contains(name)) {
+			methods.add(name);
 		}
 
 	}

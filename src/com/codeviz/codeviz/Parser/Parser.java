@@ -18,6 +18,8 @@ public class Parser {
 	private static LinkedList<String> interfaces = new LinkedList<>();
 	private static LinkedList<String> children = new LinkedList<>();
 	private static LinkedList<String> associations = new LinkedList<>();
+	private static LinkedList<String> attributes = new LinkedList<>();
+	private static LinkedList<String> methods = new LinkedList<>();
 	
 	private static String folder;
 	
@@ -180,6 +182,16 @@ public class Parser {
 			prefix = classes.get(className).cu.getPackageDeclaration().get().getNameAsString() + ".";
 		
 		return prefix + className;
+	}
+
+	public static LinkedList<String> getAttributes() {
+		
+		return attributes;
+	}
+
+	public static LinkedList<String> getMethods() {
+		
+		return methods;
 	}
 
 }
