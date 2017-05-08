@@ -321,15 +321,13 @@ public class DiagramView extends ViewPart {
 		attributesNode = new GraphNode(target_class, SWT.NONE, "Attributes");
 		nodesList.put(className, target_class);
 		//Filling attributes and methods with dummy data
-		LinkedList<String> attributes = new LinkedList<String>();
-		for(int i = 0; i < Math.random() * 20; i++){
-			attributes.add("Var "+i);
+		LinkedList<String> attributes = ClassReader.readAttributes();
+		for(int i = 0; i < attributes.size(); i++){
 			GraphNode attributeNode = new GraphNode(target_class, ZestStyles.NODES_FISHEYE | ZestStyles.NODES_HIDE_TEXT, attributes.get(i) );
 			new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED, attributesNode, attributeNode);
 		}
-		LinkedList<String> methods = new LinkedList<String>();
-		for(int i = 0; i < Math.random() * 20; i++){
-			methods.add("Method "+i);
+		LinkedList<String> methods = ClassReader.readMethods();
+		for(int i = 0; i < methods.size(); i++){
 			GraphNode methodNode = new GraphNode(target_class, ZestStyles.NODES_FISHEYE | ZestStyles.NODES_HIDE_TEXT, methods.get(i) );
 			new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED, methodsNode, methodNode);
 		}
