@@ -294,6 +294,7 @@ public class DiagramView extends ViewPart{
 	}
 	
 	
+	
 	@Override
 	public void setFocus() {
 		
