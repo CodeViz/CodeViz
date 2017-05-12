@@ -3,6 +3,7 @@ package com.codeviz.codeviz.views;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import org.eclipse.draw2d.IFigure;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -27,7 +28,6 @@ import org.eclipse.zest.core.widgets.ZestStyles;
 import org.eclipse.zest.layouts.LayoutStyles;
 import org.eclipse.zest.layouts.algorithms.SpringLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
-
 import com.codeviz.codeviz.Parser.ClassReader;
 
 
@@ -49,7 +49,7 @@ import com.codeviz.codeviz.Parser.ClassReader;
  * <p>
  */
 
-public class DiagramView extends ViewPart {
+public class DiagramView extends ViewPart{
 
 	/**
 	 * The ID of the view as specified by the extension.
@@ -138,7 +138,6 @@ public class DiagramView extends ViewPart {
 		
 		zestDiagram();
 		GC gc = event.gc;
-		
 		
 		
 		if(className.isEmpty()) return;
@@ -238,7 +237,7 @@ public class DiagramView extends ViewPart {
 	private void zestDiagram(){
 		//Create the Zest Diagram
 		clearGraph(this.graph);
-		GraphNode target_class = new GraphNode(this.graph, SWT.NONE ,className);
+		GraphNode target_class = new GraphNode(this.graph, SWT.NONE , getClassDetails());
 		
 		GraphNode parent_class = new GraphNode(this.graph, SWT.NONE, parent);
 		
@@ -275,6 +274,25 @@ public class DiagramView extends ViewPart {
 		
 		});
 	}
+	
+	
+	//structuring all the given class data in one String object 
+	private String getClassDetails(){
+		String details = "", att = "", meth= "", line = "\n----------------------";
+		LinkedList<String> attributes = ClassReader.readAttributes();
+		LinkedList<String> methods = ClassReader.readMethods();
+		for(String attribute: attributes){
+			att = att.concat("\n" + attribute);
+		}
+		for(String method: methods){
+			meth = meth.concat("\n" + method + "()");
+		}
+		
+		details = className + line + att +  line + meth;
+		
+		return details;
+	}
+	
 	
 	@Override
 	public void setFocus() {

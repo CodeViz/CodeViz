@@ -33,5 +33,14 @@ public class ClassReader {
 	public static LinkedList<String> readAssociations(){
 		return Parser.getAssociations();
 	}
-
+	
+	public static LinkedList<String> readAttributes(){
+		return Parser.getAttributes();
+	}
+	
+	public static LinkedList<String> readMethods(){
+		return Parser.getMethods();
+	}
+	
+	
 }
