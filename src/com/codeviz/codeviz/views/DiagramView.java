@@ -137,6 +137,9 @@ public class DiagramView extends ViewPart {
 				if(selectedItem instanceof GraphNode){
 					GraphNode selectedNode = (GraphNode) selectedItem;
 					String selectedClassName = selectedNode.getText();
+					if(selectedClassName.contains("\n"))
+						selectedClassName = selectedClassName.substring(0, selectedClassName.indexOf("\n"));
+					
 					System.out.println(selectedClassName);
 					
 					JDTAdapter.openEditor(selectedClassName);
@@ -293,6 +296,10 @@ public class DiagramView extends ViewPart {
 	    {
 	        GraphNode graNode = (GraphNode) objects[i];
 	        String name = graNode.getText();
+	        if(name.contains("\n")){
+	        	name = name.substring(0, name.indexOf("\n"));
+	        }
+	        
 	        if(name.equals(className) || name.equals(parent) || associations.contains(name) || children.contains(name) || interfaces.contains(name)) {} else {
 	        if(!graNode.isDisposed())
 	            graNode.dispose();
@@ -347,12 +354,16 @@ public class DiagramView extends ViewPart {
 	}
 
 	private GraphNode createNode(String className) {
+		String key = className;
+		if(className.contains("\n"))
+			key = className.substring(0, className.indexOf("\n"));
 		
-		if(! nodesList.containsKey(className))
-			nodesList.put(className, new GraphNode(this.graph, SWT.NONE, className));
 		
+		if(! nodesList.containsKey(key))
+			nodesList.put(key, new GraphNode(this.graph, SWT.NONE, className));
+		 nodesList.get(key).setText(className);
 		
-		return nodesList.get(className);
+		return nodesList.get(key);
 	}
 	
 	
