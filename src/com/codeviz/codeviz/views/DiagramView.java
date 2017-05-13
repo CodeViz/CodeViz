@@ -1,6 +1,5 @@
 package com.codeviz.codeviz.views;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -11,7 +10,6 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -21,10 +19,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-import org.osgi.service.event.Event;
 import org.eclipse.zest.core.widgets.Graph;
 import org.eclipse.zest.core.widgets.GraphConnection;
 import org.eclipse.zest.core.widgets.GraphContainer;
@@ -32,7 +28,7 @@ import org.eclipse.zest.core.widgets.GraphNode;
 import org.eclipse.zest.core.widgets.ZestStyles;
 import org.eclipse.zest.layouts.LayoutStyles;
 import org.eclipse.zest.layouts.algorithms.SpringLayoutAlgorithm;
-import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
+import org.osgi.service.event.Event;
 
 import com.codeviz.codeviz.Parser.ClassReader;
 import com.codeviz.codeviz.Parser.JDTAdapter;
@@ -203,7 +199,6 @@ public class DiagramView extends ViewPart {
 		GC gc = event.gc;
 		
 		
-		
 		if(className.isEmpty()) return;
 		
 		int startX = 5, startY = 5;
@@ -314,30 +309,8 @@ public class DiagramView extends ViewPart {
 	private void zestDiagram(){
 		//Create the Zest Diagram
 		clearGraph(this.graph);
-		
-		//Setting up target_class container
-		GraphContainer target_class = createContainer(className);
-		methodsNode = new GraphNode(target_class, SWT.NONE, "Methods"); 
-		attributesNode = new GraphNode(target_class, SWT.NONE, "Attributes");
-		nodesList.put(className, target_class);
-		//Filling attributes and methods with dummy data
-		LinkedList<String> attributes = ClassReader.readAttributes();
-		for(int i = 0; i < attributes.size(); i++){
-			GraphNode attributeNode = new GraphNode(target_class, ZestStyles.NODES_FISHEYE | ZestStyles.NODES_HIDE_TEXT, attributes.get(i) );
-			new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED, attributesNode, attributeNode);
-		}
-		LinkedList<String> methods = ClassReader.readMethods();
-		for(int i = 0; i < methods.size(); i++){
-			GraphNode methodNode = new GraphNode(target_class, ZestStyles.NODES_FISHEYE | ZestStyles.NODES_HIDE_TEXT, methods.get(i) );
-			new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED, methodsNode, methodNode);
-		}
-		
-		
-		target_class.setLayoutAlgorithm(new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
-		
-		target_class.setData("Attributes", attributes);
-		target_class.setData("Methods", methods);
-		
+
+		GraphNode target_class = createNode(getClassDetails());
 		
 		if(!parent.isEmpty()){
 			GraphNode parent_class = createNode(parent);
@@ -382,12 +355,22 @@ public class DiagramView extends ViewPart {
 		return nodesList.get(className);
 	}
 	
-	private GraphContainer createContainer(String className){
-		return new GraphContainer(graph, SWT.NONE, className);
-	}
 	
-	private void addToContainer(GraphContainer graphContainer, String nodeName){
-		GraphNode node = new GraphNode(graphContainer,  ZestStyles.NODES_FISHEYE | ZestStyles.NODES_HIDE_TEXT, nodeName);
+	//structuring all the given class data in one String object 
+	private String getClassDetails(){
+		String details = "", att = "", meth= "", line = "\n----------------------";
+		LinkedList<String> attributes = ClassReader.readAttributes();
+		LinkedList<String> methods = ClassReader.readMethods();
+		for(String attribute: attributes){
+			att = att.concat("\n" + attribute);
+		}
+		for(String method: methods){
+			meth = meth.concat("\n" + method + "()");
+		}
+		
+		details = className + line + att +  line + meth;
+		
+		return details;
 	}
 	
 	@Override
