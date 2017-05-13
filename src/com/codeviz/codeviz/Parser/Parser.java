@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -262,7 +263,7 @@ public class Parser {
 		
 		
 
-		String details = "", att = "", meth = "", line = "\n----------------------";
+		String details = "", att = "", meth = "", line = "\n──────────────────────";
 		for (String attribute : cAttributes) {
 			att = att.concat("\n" + attribute);
 		}
@@ -274,5 +275,17 @@ public class Parser {
 
 		return details;
 	}
+	
+	
+	public static String getClassType(String className) {
 
+		if (!classes.containsKey(className))
+			return "s";
+		
+		ParsedItem parsedItem = classes.get(className);
+		if(((ClassOrInterfaceDeclaration) parsedItem.cu.getType(0)).isInterface())
+			return "i";
+		
+		return "c";
+	}
 }

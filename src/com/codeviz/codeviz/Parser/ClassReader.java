@@ -43,4 +43,10 @@ public class ClassReader {
 	public static String getClassDetails(String className) {
 		return Parser.getClassDetails(className);
 	}
+	
+	public static String getClassType(String className) {
+		return Parser.getClassType(className);
+	}
+	
+	
 }

@@ -10,7 +10,9 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.zest.core.widgets.Graph;
@@ -60,6 +62,10 @@ public class DiagramView extends ViewPart {
 	private LinkedList<String> children = new LinkedList<>();
 	private LinkedList<String> interfaces = new LinkedList<>();
 	private LinkedList<String> associations = new LinkedList<>();
+
+	private static final Color color1 = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
+	private static final Color color2 = Display.getCurrent().getSystemColor(SWT.COLOR_CYAN);
+	private static final Color color3 = Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW);
 
 	public DiagramView() {
 	}
@@ -192,8 +198,27 @@ public class DiagramView extends ViewPart {
 	}
 
 	private GraphNode createNode(String className) {
-		if (!nodesList.containsKey(className))
+		if (!nodesList.containsKey(className)) {
 			nodesList.put(className, new GraphNode(this.graph, SWT.NONE, ClassReader.getClassDetails(className)));
+
+			Color c = null;
+
+			switch (ClassReader.getClassType(className)) {
+			case "s":
+				c = color1;
+				nodesList.get(className).setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+				break;
+			case "c":
+				c = color2;
+				break;
+			case "i":
+				c = color3;
+				break;
+			}
+
+			nodesList.get(className).setBackgroundColor(c);
+			nodesList.get(className).setHighlightColor(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
+		}
 
 		return nodesList.get(className);
 	}
