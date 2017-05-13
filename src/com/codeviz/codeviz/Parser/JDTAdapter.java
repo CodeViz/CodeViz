@@ -14,21 +14,22 @@ public class JDTAdapter {
 	private static final String JDT_NATURE = "org.eclipse.jdt.core.javanature";
 
 	public static void openEditor(String className) {
-		 IWorkspace workspace = ResourcesPlugin.getWorkspace();
-         IWorkspaceRoot root = workspace.getRoot();
-         IProject[] projects = root.getProjects();
-         for (IProject project : projects) {
-             try {
-            	 if (project.isNatureEnabled("org.eclipse.jdt.core.javanature")) {
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IWorkspaceRoot root = workspace.getRoot();
+		IProject[] projects = root.getProjects();
+		for (IProject project : projects) {
+			try {
+				if (project.isNatureEnabled(JDT_NATURE)) {
 					IJavaProject javaProject = JavaCore.create(project);
 					IType element = javaProject.findType(Parser.getQualifiedName(className));
-					
-					if(element != null){
+
+					if (element != null) {
 						JavaUI.openInEditor(element);
 						break;
 					}
 				}
-             } catch (CoreException e) {}
-         }
+			} catch (CoreException e) {
+			}
+		}
 	}
 }
