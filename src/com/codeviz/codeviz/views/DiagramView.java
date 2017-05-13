@@ -71,7 +71,7 @@ public class DiagramView extends ViewPart {
 		graph.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				System.out.println(e);
+//				System.out.println(e);
 			}
 
 		});
@@ -88,7 +88,7 @@ public class DiagramView extends ViewPart {
 					if (selectedClassName.contains("\n"))
 						selectedClassName = selectedClassName.substring(0, selectedClassName.indexOf("\n"));
 
-					System.out.println(selectedClassName);
+//					System.out.println(selectedClassName);
 
 					JDTAdapter.openEditor(selectedClassName);
 				}

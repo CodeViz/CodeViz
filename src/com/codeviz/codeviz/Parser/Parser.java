@@ -201,7 +201,7 @@ public class Parser {
 		LinkedList<String> cAttributes = new LinkedList<>();
 		LinkedList<String> cMethods = new LinkedList<>();
 
-		(new VoidVisitorAdapter<Object>() {
+		(new VoidVisitorAdapter<Object>() { // Attributes
 			@Override
 			public void visit(FieldDeclaration n, Object arg) {
 				super.visit(n, arg);
@@ -209,9 +209,17 @@ public class Parser {
 													// attributes
 					return;
 				}
-
+				n.getElementType().toString();
+				
 				for (VariableDeclarator vd : n.getVariables()) {
-					String name = vd.getNameAsString();
+					
+					String name = n.getElementType().toString() + " " + vd.getNameAsString();
+					
+					if(n.isPublic())			name  = "+" + name;
+					else if(n.isPrivate())		name  = "-" + name;
+					else if(n.isProtected())	name  = "#" + name;
+					else						name  = "~" + name;
+					
 					if (!cAttributes.contains(name)) {
 						cAttributes.add(name);
 					}
@@ -219,24 +227,47 @@ public class Parser {
 
 			}
 
+		}).visit(parsedItem.cu, parsedItem);
+		
+		(new VoidVisitorAdapter<Object>() { // Methods
 			@Override
 			public void visit(com.github.javaparser.ast.body.MethodDeclaration n, Object arg) {
 				super.visit(n, arg);
-
-				String name = n.getNameAsString();
+				String attr = n.getNameAsString().replaceAll("^(set|get|is)", "");
+				if(!attr.isEmpty()){
+					attr = Character.toLowerCase(attr.charAt(0)) + (attr.length() > 1 ? attr.substring(1) : "");
+					
+					
+					for (String attribute : cAttributes) {
+						if(attribute.contains(attr))
+							return;	// skip setters and getters
+					}
+				}
+				
+				String name = n.getDeclarationAsString(false, false);
+				
+				if(n.isPublic())	name  = "+" + name;
+				if(n.isPrivate())	name  = "-" + name;
+				if(n.isProtected())	name  = "#" + name;
+				if(n.isDefault())	name  = "~" + name;
+				
+				
+				
 				if (!cMethods.contains(name)) {
 					cMethods.add(name);
 				}
 
 			}
 		}).visit(parsedItem.cu, parsedItem);
+		
+		
 
 		String details = "", att = "", meth = "", line = "\n----------------------";
 		for (String attribute : cAttributes) {
 			att = att.concat("\n" + attribute);
 		}
-		for (String method : cMethods) {
-			meth = meth.concat("\n" + method + "()");
+		for (String method : cMethods) {	
+			meth = meth.concat("\n" + method);
 		}
 
 		details = className + line + att + line + meth;
