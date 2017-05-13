@@ -317,7 +317,7 @@ public class DiagramView extends ViewPart {
 		//Create the Zest Diagram
 		clearGraph(this.graph);
 
-		GraphNode target_class = createNode(getClassDetails());
+		GraphNode target_class = createNode(className);
 		
 		if(!parent.isEmpty()){
 			GraphNode parent_class = createNode(parent);
@@ -353,35 +353,11 @@ public class DiagramView extends ViewPart {
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=236528
 	}
 
-	private GraphNode createNode(String className) {
-		String key = className;
-		if(className.contains("\n"))
-			key = className.substring(0, className.indexOf("\n"));
+	private GraphNode createNode(String className) {		
+		if(! nodesList.containsKey(className))
+			nodesList.put(className, new GraphNode(this.graph, SWT.NONE, ClassReader.getClassDetails(className)));
 		
-		
-		if(! nodesList.containsKey(key))
-			nodesList.put(key, new GraphNode(this.graph, SWT.NONE, className));
-		 nodesList.get(key).setText(className);
-		
-		return nodesList.get(key);
-	}
-	
-	
-	//structuring all the given class data in one String object 
-	private String getClassDetails(){
-		String details = "", att = "", meth= "", line = "\n----------------------";
-		LinkedList<String> attributes = ClassReader.readAttributes();
-		LinkedList<String> methods = ClassReader.readMethods();
-		for(String attribute: attributes){
-			att = att.concat("\n" + attribute);
-		}
-		for(String method: methods){
-			meth = meth.concat("\n" + method + "()");
-		}
-		
-		details = className + line + att +  line + meth;
-		
-		return details;
+		return nodesList.get(className);
 	}
 	
 	@Override

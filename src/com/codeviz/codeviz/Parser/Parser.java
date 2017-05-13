@@ -10,6 +10,9 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 public class Parser {
 
@@ -192,6 +195,61 @@ public class Parser {
 	public static LinkedList<String> getMethods() {
 		
 		return methods;
+	}
+	
+	
+	public static String getClassDetails(String className){
+		
+		if(! classes.containsKey(className))
+			return className;
+		
+		
+		ParsedItem parsedItem = classes.get(className);
+		LinkedList<String> cAttributes = new LinkedList<>();
+		LinkedList<String> cMethods = new LinkedList<>();
+		
+		
+		(new VoidVisitorAdapter<Object>() {
+			@Override
+			public void visit(FieldDeclaration n, Object arg) {
+				super.visit(n, arg);
+				if (n.isFinal() && n.isStatic()) { // ignore final static attributes
+					return;
+				}
+				
+				for (VariableDeclarator vd : n.getVariables()) {
+					String name = vd.getNameAsString();
+					if (!cAttributes.contains(name)) {
+						cAttributes.add(name);
+					}
+				}
+
+			}
+
+			@Override
+			public void visit(com.github.javaparser.ast.body.MethodDeclaration n, Object arg) {
+				super.visit(n, arg);
+
+				String name = n.getNameAsString();
+				if (!cMethods.contains(name)) {
+					cMethods.add(name);
+				}
+
+			}
+		}).visit(parsedItem.cu, parsedItem);
+		
+		
+		String details = "", att = "", meth= "", line = "\n----------------------";
+		for(String attribute: cAttributes){
+			att = att.concat("\n" + attribute);
+		}
+		for(String method: cMethods){
+			meth = meth.concat("\n" + method + "()");
+		}
+		
+		details = className + line + att +  line + meth;
+		
+		return details;
 	}
 
 }

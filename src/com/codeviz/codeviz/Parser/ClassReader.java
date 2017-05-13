@@ -42,5 +42,7 @@ public class ClassReader {
 		return Parser.getMethods();
 	}
 	
-	
+	public static String getClassDetails(String className) {
+		return Parser.getClassDetails(className);
+	}
 }
