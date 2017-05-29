@@ -63,6 +63,12 @@ public class ClassesOrInterfacesVisitor extends VoidVisitorAdapter<Object> {
 							Parser.getChildren().add(p.getNameAsString());
 						}
 					}
+					
+					for (ClassOrInterfaceType parent : p.getImplementedTypes()) {
+						if (parent.getNameAsString().equals(n.getNameAsString())) {
+							Parser.getChildren().add(p.getNameAsString());
+						}
+					}
 				}
 
 				@Override
