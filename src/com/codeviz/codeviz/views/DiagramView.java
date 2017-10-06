@@ -1,17 +1,11 @@
 package com.codeviz.codeviz.views;
 
-import java.awt.event.MouseWheelEvent;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
 import org.eclipse.e4.core.services.events.IEventBroker;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IMenuListener;
-import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -19,15 +13,13 @@ import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Decorations;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.menus.IMenuService;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.zest.core.viewers.AbstractZoomableViewer;
-import org.eclipse.zest.core.viewers.IZoomableWorkbenchPart;
 import org.eclipse.zest.core.viewers.internal.ZoomManager;
 import org.eclipse.zest.core.widgets.Graph;
 import org.eclipse.zest.core.widgets.GraphConnection;
@@ -56,7 +48,7 @@ import com.codeviz.codeviz.Parser.JDTAdapter;
  * <p>
  */
 
-public class DiagramView extends ViewPart implements IZoomableWorkbenchPart {
+public class DiagramView extends ViewPart {
 
 	/**
 	 * The ID of the view as specified by the extension.
@@ -71,15 +63,17 @@ public class DiagramView extends ViewPart implements IZoomableWorkbenchPart {
 
 	String parsedSrc = "";
 
-	
-	private MenuManager menuMgr;
-	private Menu menu;
-	
 	private String className = "";
 	private String parent = "";
 	private LinkedList<String> children = new LinkedList<>();
 	private LinkedList<String> interfaces = new LinkedList<>();
 	private LinkedList<String> associations = new LinkedList<>();
+	
+	private MenuManager menuMgr;
+
+	private static final Color color1 = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
+	private static final Color color2 = Display.getCurrent().getSystemColor(SWT.COLOR_CYAN);
+	private static final Color color3 = Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW);
 
 	public DiagramView() {
 	}
@@ -205,9 +199,9 @@ public class DiagramView extends ViewPart implements IZoomableWorkbenchPart {
 				if((e.stateMask & SWT.CTRL) == 0){
 					return;
 				}
-				if(e.count > 0)
+				if(e.count < 0)
 					zoomManager.zoomOut();
-				else if(e.count < 0)
+				else if(e.count > 0)
 					zoomManager.zoomIn();
 				
 			}
@@ -218,7 +212,6 @@ public class DiagramView extends ViewPart implements IZoomableWorkbenchPart {
 		eventBroker.subscribe(EventTopic.PARSER_DONE, (e) -> prepareDiagram(e));
 
 	}
-	
 	
 
 	public void prepareDiagram(Event e) {
@@ -311,8 +304,27 @@ public class DiagramView extends ViewPart implements IZoomableWorkbenchPart {
 	}
 
 	private GraphNode createNode(String className) {
-		if (!nodesList.containsKey(className))
+		if (!nodesList.containsKey(className)) {
 			nodesList.put(className, new GraphNode(this.graph, SWT.NONE, ClassReader.getClassDetails(className)));
+
+			Color c = null;
+
+			switch (ClassReader.getClassType(className)) {
+			case "s":
+				c = color1;
+				nodesList.get(className).setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+				break;
+			case "c":
+				c = color2;
+				break;
+			case "i":
+				c = color3;
+				break;
+			}
+
+			nodesList.get(className).setBackgroundColor(c);
+			nodesList.get(className).setHighlightColor(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
+		}
 
 		return nodesList.get(className);
 	}
@@ -325,12 +337,6 @@ public class DiagramView extends ViewPart implements IZoomableWorkbenchPart {
 	@Override
 	public void dispose() {
 		super.dispose();
-	}
-
-	@Override
-	public AbstractZoomableViewer getZoomableViewer() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
