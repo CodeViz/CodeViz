@@ -1,20 +1,34 @@
 package com.codeviz.codeviz.views;
 
+import java.awt.event.MouseWheelEvent;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
 import org.eclipse.e4.core.services.events.IEventBroker;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Decorations;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.menus.IMenuService;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.zest.core.viewers.AbstractZoomableViewer;
+import org.eclipse.zest.core.viewers.IZoomableWorkbenchPart;
+import org.eclipse.zest.core.viewers.internal.ZoomManager;
 import org.eclipse.zest.core.widgets.Graph;
 import org.eclipse.zest.core.widgets.GraphConnection;
 import org.eclipse.zest.core.widgets.GraphContainer;
@@ -42,7 +56,7 @@ import com.codeviz.codeviz.Parser.JDTAdapter;
  * <p>
  */
 
-public class DiagramView extends ViewPart {
+public class DiagramView extends ViewPart implements IZoomableWorkbenchPart {
 
 	/**
 	 * The ID of the view as specified by the extension.
@@ -57,27 +71,106 @@ public class DiagramView extends ViewPart {
 
 	String parsedSrc = "";
 
+	
+	private MenuManager menuMgr;
+	private Menu menu;
+	
 	private String className = "";
 	private String parent = "";
 	private LinkedList<String> children = new LinkedList<>();
 	private LinkedList<String> interfaces = new LinkedList<>();
 	private LinkedList<String> associations = new LinkedList<>();
 
-	private static final Color color1 = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
-	private static final Color color2 = Display.getCurrent().getSystemColor(SWT.COLOR_CYAN);
-	private static final Color color3 = Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW);
-
 	public DiagramView() {
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
+		
+		Menu menu;
 		graph = new Graph(parent, SWT.NONE);
+		ZoomManager zoomManager = new ZoomManager(graph.getRootLayer(),graph.getViewport());
+		try {
+			menuMgr = new MenuManager();
+//			menuMgr.add(new Separator("group.connect")); //$NON-NLS-1$
+//			menuMgr.add(new Separator("group.launch")); //$NON-NLS-1$
+//			menuMgr.add(new Separator("group.launch.rundebug")); //$NON-NLS-1$
+//			menuMgr.add(new Separator("group.history")); //$NON-NLS-1$
+//			menuMgr.add(new Separator("group.additions")); //$NON-NLS-1$
+//			final IMenuService service = (IMenuService) serviceLocator.getService(IMenuService.class);
+//			service.populateContributionManager(menuMgr, "menu:" + getId()); //$NON-NLS-1$
+//			for (IContributionItem item : menuMgr.getItems()) {
+//	            item.update();
+//	           }
+			menu = menuMgr.createContextMenu(parent);
+//			Decorations parent_decoration = new Decorations(parent, SWT.BORDER);
+			menu = new Menu(parent);
+			
+			MenuItem zoomin = new MenuItem(menu, SWT.CENTER);
+			zoomin.setText("Zoom in");
+			zoomin.addSelectionListener(new SelectionListener(){
+
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					// TODO Auto-generated method stub
+//					zoomManager.setZoom(zoomManager.getZoom() + 50);
+					zoomManager.zoomIn();
+				}
+
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+			});
+//			Action zoomin_action = new Action("Zoom in") {
+//				public void run(){
+//						zoomManager.setZoom(zoomManager.getZoom() + 50);
+//					
+//				}
+//			};
+			
+			MenuItem zoomout = new MenuItem(menu, SWT.CENTER);
+			zoomout.setText("Zoom out");
+			zoomout.addSelectionListener(new SelectionListener(){
+
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					// TODO Auto-generated method stub
+//					zoomManager.setZoom(zoomManager.getZoom() - 50);
+					zoomManager.zoomOut();
+				}
+
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+			});
+//			Action zoomout_action = new Action("Zoom out") {
+//				public void run(){
+//					zoomManager.setZoom(zoomManager.getZoom() - 50);
+//				}
+//			};
+		}
+		catch (Exception e) {
+//			if (Platform.inDebugMode()) {
+//				Platform.getLog(UIPlugin.getDefault().getBundle()).log(StatusHelper.getStatus(e));
+//			}
+			System.out.println("Menu error");
+			menuMgr = null;
+			menu = null;
+		}
+		
+		graph.setMenu(menu);
+		
 
 		graph.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-//				System.out.println(e);
+				System.out.println(e);
 			}
 
 		});
@@ -94,19 +187,39 @@ public class DiagramView extends ViewPart {
 					if (selectedClassName.contains("\n"))
 						selectedClassName = selectedClassName.substring(0, selectedClassName.indexOf("\n"));
 
-//					System.out.println(selectedClassName);
+					System.out.println(selectedClassName);
 
 					JDTAdapter.openEditor(selectedClassName);
 				}
+				
 
 				super.mouseDoubleClick(e);
 			}
+			
+		});
+		
+		graph.addMouseWheelListener(new MouseWheelListener() {
+
+			@Override
+			public void mouseScrolled(MouseEvent e) {
+				if((e.stateMask & SWT.CTRL) == 0){
+					return;
+				}
+				if(e.count > 0)
+					zoomManager.zoomOut();
+				else if(e.count < 0)
+					zoomManager.zoomIn();
+				
+			}
+			
 		});
 
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
 		eventBroker.subscribe(EventTopic.PARSER_DONE, (e) -> prepareDiagram(e));
 
 	}
+	
+	
 
 	public void prepareDiagram(Event e) {
 
@@ -198,27 +311,8 @@ public class DiagramView extends ViewPart {
 	}
 
 	private GraphNode createNode(String className) {
-		if (!nodesList.containsKey(className)) {
+		if (!nodesList.containsKey(className))
 			nodesList.put(className, new GraphNode(this.graph, SWT.NONE, ClassReader.getClassDetails(className)));
-
-			Color c = null;
-
-			switch (ClassReader.getClassType(className)) {
-			case "s":
-				c = color1;
-				nodesList.get(className).setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
-				break;
-			case "c":
-				c = color2;
-				break;
-			case "i":
-				c = color3;
-				break;
-			}
-
-			nodesList.get(className).setBackgroundColor(c);
-			nodesList.get(className).setHighlightColor(Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_HIGHLIGHT_SHADOW));
-		}
 
 		return nodesList.get(className);
 	}
@@ -231,6 +325,12 @@ public class DiagramView extends ViewPart {
 	@Override
 	public void dispose() {
 		super.dispose();
+	}
+
+	@Override
+	public AbstractZoomableViewer getZoomableViewer() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
