@@ -1,11 +1,20 @@
 package com.codeviz.codeviz.views;
 
+import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
 import org.eclipse.e4.core.services.events.IEventBroker;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -18,6 +27,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.zest.core.viewers.internal.ZoomManager;
@@ -32,6 +44,8 @@ import org.osgi.service.event.Event;
 
 import com.codeviz.codeviz.Parser.ClassReader;
 import com.codeviz.codeviz.Parser.JDTAdapter;
+
+
 
 /**
  * This sample class demonstrates how to plug-in a new workbench view. The view
@@ -57,7 +71,16 @@ public class DiagramView extends ViewPart {
 
 	private Graph graph;
 	private static GraphContainer target_class;
+	
 
+	private Action zoom_in;
+	private Action zoom_out;
+	private Action redraw;
+	
+	private ZoomManager zoomManager;
+
+	private boolean compact_mode = true;
+	
 	private Map<String, GraphNode> nodesList = new HashMap<>();
 	private IEventBroker eventBroker;
 
@@ -81,9 +104,14 @@ public class DiagramView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		
+		
 		Menu menu;
 		graph = new Graph(parent, SWT.NONE);
-		ZoomManager zoomManager = new ZoomManager(graph.getRootLayer(),graph.getViewport());
+		
+		makeActions();
+		hookContextMenu();
+		contributeToActionBars();
+		zoomManager = new ZoomManager(graph.getRootLayer(),graph.getViewport());
 		try {
 			menuMgr = new MenuManager();
 //			menuMgr.add(new Separator("group.connect")); //$NON-NLS-1$
@@ -214,6 +242,80 @@ public class DiagramView extends ViewPart {
 	}
 	
 
+	private void hookContextMenu() {
+		MenuManager menuMgr = new MenuManager("#PopupMenu");
+		menuMgr.setRemoveAllWhenShown(true);
+		menuMgr.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager manager) {
+				DiagramView.this.fillContextMenu(manager);
+			}
+		});
+		Menu menu = menuMgr.createContextMenu(graph);
+	}
+
+	private void contributeToActionBars() {
+		IActionBars bars = getViewSite().getActionBars();
+		fillLocalPullDown(bars.getMenuManager());
+		fillLocalToolBar(bars.getToolBarManager());
+	}
+
+	private void fillLocalPullDown(IMenuManager manager) {
+		manager.add(zoom_in);
+		manager.add(new Separator());
+		manager.add(zoom_out);
+		manager.add(new Separator());
+		manager.add(redraw);
+	}
+
+	private void fillContextMenu(IMenuManager manager) {
+		manager.add(zoom_in);
+		manager.add(zoom_out);
+		manager.add(redraw);
+		// Other plug-ins can contribute there actions here
+		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+	}
+	
+	private void fillLocalToolBar(IToolBarManager manager) {
+		manager.add(zoom_in);
+		manager.add(zoom_out);
+		manager.add(redraw);
+	}
+
+	private void makeActions() {
+		zoom_in = new Action() {
+			public void run() {
+				zoomManager.zoomIn();
+			}
+		};
+		zoom_in.setText("Zoom in");
+		zoom_in.setToolTipText("Zooms in");
+		zoom_in.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+		
+		zoom_out = new Action() {
+			public void run() {
+				zoomManager.zoomOut();
+			}
+		};
+		zoom_out.setText("Zoom out");
+		zoom_out.setToolTipText("Zooms out");
+		zoom_out.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+		
+		redraw = new Action() {
+			public void run() {
+				compact_mode = !compact_mode;
+				drawZestDiagram();
+				
+			}
+		};
+		redraw.setText(compact_mode? "show details" : "hide details" );
+		redraw.setToolTipText(compact_mode? "show Variables and Methods of classes" : "hide Variables and Methods of classes");
+		redraw.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+		
+	}
+
 	public void prepareDiagram(Event e) {
 
 		className = (String) e.getProperty(e.getPropertyNames()[0]);
@@ -247,9 +349,9 @@ public class DiagramView extends ViewPart {
 				name = name.substring(0, name.indexOf("\n"));
 			}
 
-			if (name.equals(className) || name.equals(parent) || associations.contains(name) || children.contains(name)
-					|| interfaces.contains(name))
-				continue;
+//			if (name.equals(className) || name.equals(parent) || associations.contains(name) || children.contains(name)
+//					|| interfaces.contains(name))
+//				continue;
 
 			if (!graNode.isDisposed())
 				graNode.dispose();
@@ -264,9 +366,11 @@ public class DiagramView extends ViewPart {
 	private void drawZestDiagram() {
 		// Create the Zest Diagram
 		clearGraph(this.graph);
-
+		
+//		graph.setSize(graph.getParent().getShell().getSize());
+		
 		GraphNode target_class = createNode(className);
-
+		
 		if (!parent.isEmpty()) {
 			GraphNode parent_class = createNode(parent);
 			GraphConnection target_parent_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_DIRECTED,
@@ -301,11 +405,15 @@ public class DiagramView extends ViewPart {
 		}
 
 		graph.setLayoutAlgorithm(new SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+//		org.eclipse.swt.graphics.Rectangle r = graph.getClientArea();
+//		graph.setSize(graph, r.width);
+		
+		graph.applyLayout();
 	}
 
 	private GraphNode createNode(String className) {
 		if (!nodesList.containsKey(className)) {
-			nodesList.put(className, new GraphNode(this.graph, SWT.NONE, ClassReader.getClassDetails(className)));
+			nodesList.put(className, new GraphNode(this.graph, SWT.NONE, ClassReader.getClassDetails(className, compact_mode)));
 
 			Color c = null;
 
@@ -332,6 +440,13 @@ public class DiagramView extends ViewPart {
 	@Override
 	public void setFocus() {
 
+	}
+	
+	private void showMessage(String message) {
+		MessageDialog.openInformation(
+			graph.getShell(),
+			"Diagram View",
+			message);
 	}
 
 	@Override

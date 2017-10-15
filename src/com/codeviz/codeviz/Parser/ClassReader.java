@@ -40,8 +40,8 @@ public class ClassReader {
 		return Parser.getMethods();
 	}
 
-	public static String getClassDetails(String className) {
-		return Parser.getClassDetails(className);
+	public static String getClassDetails(String className, boolean compact) {
+		return Parser.getClassDetails(className, compact);
 	}
 	
 	public static String getClassType(String className) {

@@ -193,7 +193,7 @@ public class Parser {
 		return methods;
 	}
 
-	public static String getClassDetails(String className) {
+	public static String getClassDetails(String className, boolean compact) {
 
 		if (!classes.containsKey(className))
 			return className;
@@ -271,7 +271,10 @@ public class Parser {
 			meth = meth.concat("\n" + method);
 		}
 
-		details = className + line + att + line + meth;
+		if(compact)
+			details = className;
+		else
+			details = className + line + att + line + meth;
 
 		return details;
 	}
