@@ -1,5 +1,6 @@
 package com.codeviz.codeviz.views;
 
+import java.awt.BorderLayout;
 import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,6 +24,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
@@ -106,6 +108,7 @@ public class DiagramView extends ViewPart {
 		
 		
 		Menu menu;
+		parent.setLayout(new FillLayout());
 		graph = new Graph(parent, SWT.NONE);
 		
 		makeActions();
