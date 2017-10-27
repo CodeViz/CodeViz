@@ -99,6 +99,11 @@ public class DiagramView extends ViewPart {
 	private static final Color color1 = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
 	private static final Color color2 = Display.getCurrent().getSystemColor(SWT.COLOR_CYAN);
 	private static final Color color3 = Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW);
+	
+	private static final Color colorP = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_MAGENTA);
+	private static final Color colorA = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
+	private static final Color colorC = Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA);
+	private static final Color colorI = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_YELLOW);
 
 	public DiagramView() {
 	}
@@ -378,6 +383,7 @@ public class DiagramView extends ViewPart {
 			GraphNode parent_class = createNode(parent);
 			GraphConnection target_parent_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_DIRECTED,
 					target_class, parent_class);
+			target_parent_connection.setLineColor(colorP);
 			target_parent_connection.setText("Parent");
 		}
 
@@ -390,6 +396,7 @@ public class DiagramView extends ViewPart {
 			GraphNode associate_class = createNode(associate_name);
 			GraphConnection target_associate_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_SOLID,
 					target_class, associate_class);
+			target_associate_connection.setLineColor(colorA);
 			target_associate_connection.setText("Association");
 		}
 
@@ -397,6 +404,7 @@ public class DiagramView extends ViewPart {
 			GraphNode child_class = createNode(child_name);
 			GraphConnection target_child_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_DIRECTED,
 					child_class, target_class);
+			target_child_connection.setLineColor(colorC);
 			target_child_connection.setText("Child");
 		}
 
@@ -404,6 +412,7 @@ public class DiagramView extends ViewPart {
 			GraphNode interface_comp = createNode(interface_name);
 			GraphConnection target_interface_connection = new GraphConnection(this.graph,
 					ZestStyles.CONNECTIONS_DASH_DOT, target_class, interface_comp);
+			target_interface_connection.setLineColor(colorI);
 			target_interface_connection.setText("Interface");
 		}
 
