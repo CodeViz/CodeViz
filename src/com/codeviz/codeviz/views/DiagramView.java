@@ -24,11 +24,17 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
@@ -78,6 +84,7 @@ public class DiagramView extends ViewPart {
 	private Action zoom_in;
 	private Action zoom_out;
 	private Action redraw;
+	private Action customization;
 	
 	private ZoomManager zoomManager;
 
@@ -96,14 +103,14 @@ public class DiagramView extends ViewPart {
 	
 	private MenuManager menuMgr;
 
-	private static final Color color1 = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
-	private static final Color color2 = Display.getCurrent().getSystemColor(SWT.COLOR_CYAN);
-	private static final Color color3 = Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW);
+	private static Color color1 = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
+	private static Color color2 = Display.getCurrent().getSystemColor(SWT.COLOR_CYAN);
+	private static Color color3 = Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW);
 	
-	private static final Color colorP = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_MAGENTA);
-	private static final Color colorA = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
-	private static final Color colorC = Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA);
-	private static final Color colorI = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_YELLOW);
+	private static Color colorP = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_MAGENTA);
+	private static Color colorA = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
+	private static Color colorC = Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA);
+	private static Color colorI = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_YELLOW);
 
 	public DiagramView() {
 	}
@@ -249,6 +256,234 @@ public class DiagramView extends ViewPart {
 
 	}
 	
+	private void createCustomizationWindowContent(Composite shell) {
+	    shell.setLayout(new GridLayout(2, false));
+
+	    
+	    setColor1(new Color(shell.getDisplay(),getColor1().getRGB()));
+	    setColor2(new Color(shell.getDisplay(),getColor2().getRGB()));
+	    setColor3(new Color(shell.getDisplay(),getColor3().getRGB()));
+	    
+	    setColorP(new Color(shell.getDisplay(),getColorP().getRGB()));
+	    setColorC(new Color(shell.getDisplay(),getColorC().getRGB()));
+	    setColorA(new Color(shell.getDisplay(),getColorA().getRGB()));
+	    setColorI(new Color(shell.getDisplay(),getColorI().getRGB()));
+
+	    // Use a label full of spaces to show the color
+	    final Label color1Label = new Label(shell, SWT.NONE);
+	    color1Label.setText("                              ");
+	    color1Label.setBackground(getColor1());
+	    
+	    final Label color2Label = new Label(shell, SWT.NONE);
+	    color2Label.setText("                              ");
+	    color2Label.setBackground(getColor2());
+	    
+	    final Label color3Label = new Label(shell, SWT.NONE);
+	    color3Label.setText("                              ");
+	    color3Label.setBackground(getColor3());
+	    
+	    
+	    
+	    
+	    final Label colorPLabel = new Label(shell, SWT.NONE);
+	    colorPLabel.setText("                              ");
+	    colorPLabel.setBackground(getColorP());
+	    
+	    final Label colorCLabel = new Label(shell, SWT.NONE);
+	    colorCLabel.setText("                              ");
+	    colorCLabel.setBackground(getColorC());
+	    
+	    final Label colorALabel = new Label(shell, SWT.NONE);
+	    colorALabel.setText("                              ");
+	    colorALabel.setBackground(getColorA());
+	    
+	    final Label colorILabel = new Label(shell, SWT.NONE);
+	    colorILabel.setText("                              ");
+	    colorILabel.setBackground(getColorI());
+
+	    Button button1 = new Button(shell, SWT.PUSH);
+	    button1.setText("Java-Specific Class Color");
+	    button1.addSelectionListener(new SelectionAdapter() {
+	      public void widgetSelected(SelectionEvent event) {
+	        // Create the color-change dialog
+	        ColorDialog dlg = new ColorDialog((Shell) shell);
+
+	        // Set the selected color in the dialog from
+	        // user's selected color
+	        dlg.setRGB(color1Label.getBackground().getRGB());
+
+	        // Change the title bar text
+	        dlg.setText("Choose a Color for Java-specific classes");
+
+	        // Open the dialog and retrieve the selected color
+	        RGB rgb = dlg.open();
+	        if (rgb != null) {
+	          // Dispose the old color, create the
+	          // new one, and set into the label
+	          getColor1().dispose();
+	          setColor1(new Color(shell.getDisplay(), rgb));
+	          color1Label.setBackground(getColor1());
+	        }
+	      }
+	    });
+	    
+	    Button button2 = new Button(shell, SWT.PUSH);
+	    button2.setText("Class Color");
+	    button2.addSelectionListener(new SelectionAdapter() {
+	      public void widgetSelected(SelectionEvent event) {
+	        // Create the color-change dialog
+	        ColorDialog dlg = new ColorDialog((Shell) shell);
+
+	        // Set the selected color in the dialog from
+	        // user's selected color
+	        dlg.setRGB(color2Label.getBackground().getRGB());
+
+	        // Change the title bar text
+	        dlg.setText("Choose a Color for your classes");
+
+	        // Open the dialog and retrieve the selected color
+	        RGB rgb = dlg.open();
+	        if (rgb != null) {
+	          // Dispose the old color, create the
+	          // new one, and set into the label
+	          getColor2().dispose();
+	          setColor2(new Color(shell.getDisplay(), rgb));
+	          color2Label.setBackground(getColor2());
+	        }
+	      }
+	    });
+	    
+	    Button button3 = new Button(shell, SWT.PUSH);
+	    button3.setText("Interface Color");
+	    button3.addSelectionListener(new SelectionAdapter() {
+	      public void widgetSelected(SelectionEvent event) {
+	        // Create the color-change dialog
+	        ColorDialog dlg = new ColorDialog((Shell) shell);
+
+	        // Set the selected color in the dialog from
+	        // user's selected color
+	        dlg.setRGB(color3Label.getBackground().getRGB());
+
+	        // Change the title bar text
+	        dlg.setText("Choose a Color for your interfaces");
+
+	        // Open the dialog and retrieve the selected color
+	        RGB rgb = dlg.open();
+	        if (rgb != null) {
+	          // Dispose the old color, create the
+	          // new one, and set into the label
+	          getColor3().dispose();
+	          setColor3(new Color(shell.getDisplay(), rgb));
+	          color3Label.setBackground(getColor3());
+	        }
+	      }
+	    });
+	    
+	    Button buttonP = new Button(shell, SWT.PUSH);
+	    buttonP.setText("Parent Class Link Color");
+	    buttonP.addSelectionListener(new SelectionAdapter() {
+	      public void widgetSelected(SelectionEvent event) {
+	        // Create the color-change dialog
+	        ColorDialog dlg = new ColorDialog((Shell) shell);
+
+	        // Set the selected color in the dialog from
+	        // user's selected color
+	        dlg.setRGB(colorPLabel.getBackground().getRGB());
+
+	        // Change the title bar text
+	        dlg.setText("Choose a Color for your parent class link");
+
+	        // Open the dialog and retrieve the selected color
+	        RGB rgb = dlg.open();
+	        if (rgb != null) {
+	          // Dispose the old color, create the
+	          // new one, and set into the label
+	          getColorP().dispose();
+	          setColorP(new Color(shell.getDisplay(), rgb));
+	          colorPLabel.setBackground(getColorP());
+	        }
+	      }
+	    });
+	    
+	    Button buttonC = new Button(shell, SWT.PUSH);
+	    buttonC.setText("Child Class Link Color");
+	    buttonC.addSelectionListener(new SelectionAdapter() {
+	      public void widgetSelected(SelectionEvent event) {
+	        // Create the color-change dialog
+	        ColorDialog dlg = new ColorDialog((Shell) shell);
+
+	        // Set the selected color in the dialog from
+	        // user's selected color
+	        dlg.setRGB(colorCLabel.getBackground().getRGB());
+
+	        // Change the title bar text
+	        dlg.setText("Choose a Color for your child class link");
+
+	        // Open the dialog and retrieve the selected color
+	        RGB rgb = dlg.open();
+	        if (rgb != null) {
+	          // Dispose the old color, create the
+	          // new one, and set into the label
+	          getColorC().dispose();
+	          setColorC(new Color(shell.getDisplay(), rgb));
+	          colorCLabel.setBackground(getColorC());
+	        }
+	      }
+	    });
+	    
+	    Button buttonI = new Button(shell, SWT.PUSH);
+	    buttonI.setText("Interface Link Color");
+	    buttonI.addSelectionListener(new SelectionAdapter() {
+	      public void widgetSelected(SelectionEvent event) {
+	        // Create the color-change dialog
+	        ColorDialog dlg = new ColorDialog((Shell) shell);
+
+	        // Set the selected color in the dialog from
+	        // user's selected color
+	        dlg.setRGB(colorILabel.getBackground().getRGB());
+
+	        // Change the title bar text
+	        dlg.setText("Choose a Color for your interface link");
+
+	        // Open the dialog and retrieve the selected color
+	        RGB rgb = dlg.open();
+	        if (rgb != null) {
+	          // Dispose the old color, create the
+	          // new one, and set into the label
+	          getColorI().dispose();
+	          setColorI(new Color(shell.getDisplay(), rgb));
+	          colorILabel.setBackground(getColorI());
+	        }
+	      }
+	    });
+	    
+	    Button buttonA = new Button(shell, SWT.PUSH);
+	    buttonA.setText("Associate Class Link Color");
+	    buttonA.addSelectionListener(new SelectionAdapter() {
+	      public void widgetSelected(SelectionEvent event) {
+	        // Create the color-change dialog
+	        ColorDialog dlg = new ColorDialog((Shell) shell);
+
+	        // Set the selected color in the dialog from
+	        // user's selected color
+	        dlg.setRGB(colorALabel.getBackground().getRGB());
+
+	        // Change the title bar text
+	        dlg.setText("Choose a Color for your associate class link");
+
+	        // Open the dialog and retrieve the selected color
+	        RGB rgb = dlg.open();
+	        if (rgb != null) {
+	          // Dispose the old color, create the
+	          // new one, and set into the label
+	          getColorA().dispose();
+	          setColorA(new Color(shell.getDisplay(), rgb));
+	          colorALabel.setBackground(getColorA());
+	        }
+	      }
+	    });
+	  }
+	
 
 	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
@@ -287,6 +522,7 @@ public class DiagramView extends ViewPart {
 		manager.add(zoom_in);
 		manager.add(zoom_out);
 		manager.add(redraw);
+		manager.add(customization);
 	}
 
 	private void makeActions() {
@@ -322,7 +558,31 @@ public class DiagramView extends ViewPart {
 		redraw.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 		
-	}
+		customization =  new Action() {
+			public void run() {
+				Display display = new Display();
+			    Shell shell = new Shell(display);
+			    shell.setText("Color Chooser");
+			    createCustomizationWindowContent(shell);
+			    shell.pack();
+			    shell.open();
+			    while (!shell.isDisposed()) {
+			      if (!display.readAndDispatch()) {
+			        display.sleep();
+			      }
+			    }
+			    // Dispose the color we created for the Label
+			    
+			    display.dispose();
+			  }
+			};
+			customization.setText("Customize Visualization");
+			customization.setToolTipText("Open Customization Window");
+			customization.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+		}
+		
+	
 
 	public void prepareDiagram(Event e) {
 
@@ -383,7 +643,7 @@ public class DiagramView extends ViewPart {
 			GraphNode parent_class = createNode(parent);
 			GraphConnection target_parent_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_DIRECTED,
 					target_class, parent_class);
-			target_parent_connection.setLineColor(colorP);
+			target_parent_connection.setLineColor(getColorP());
 			target_parent_connection.setText("Parent");
 		}
 
@@ -396,7 +656,7 @@ public class DiagramView extends ViewPart {
 			GraphNode associate_class = createNode(associate_name);
 			GraphConnection target_associate_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_SOLID,
 					target_class, associate_class);
-			target_associate_connection.setLineColor(colorA);
+			target_associate_connection.setLineColor(getColorA());
 			target_associate_connection.setText("Association");
 		}
 
@@ -404,7 +664,7 @@ public class DiagramView extends ViewPart {
 			GraphNode child_class = createNode(child_name);
 			GraphConnection target_child_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_DIRECTED,
 					child_class, target_class);
-			target_child_connection.setLineColor(colorC);
+			target_child_connection.setLineColor(getColorC());
 			target_child_connection.setText("Child");
 		}
 
@@ -412,7 +672,7 @@ public class DiagramView extends ViewPart {
 			GraphNode interface_comp = createNode(interface_name);
 			GraphConnection target_interface_connection = new GraphConnection(this.graph,
 					ZestStyles.CONNECTIONS_DASH_DOT, target_class, interface_comp);
-			target_interface_connection.setLineColor(colorI);
+			target_interface_connection.setLineColor(getColorI());
 			target_interface_connection.setText("Interface");
 		}
 
@@ -431,14 +691,14 @@ public class DiagramView extends ViewPart {
 
 			switch (ClassReader.getClassType(className)) {
 			case "s":
-				c = color1;
+				c = getColor1();
 				nodesList.get(className).setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
 				break;
 			case "c":
-				c = color2;
+				c = getColor2();
 				break;
 			case "i":
-				c = color3;
+				c = getColor3();
 				break;
 			}
 
@@ -464,6 +724,62 @@ public class DiagramView extends ViewPart {
 	@Override
 	public void dispose() {
 		super.dispose();
+	}
+
+	public static Color getColor1() {
+		return color1;
+	}
+
+	public static void setColor1(Color color1) {
+		DiagramView.color1 = color1;
+	}
+
+	public static Color getColor2() {
+		return color2;
+	}
+
+	public static void setColor2(Color color2) {
+		DiagramView.color2 = color2;
+	}
+
+	public static Color getColor3() {
+		return color3;
+	}
+
+	public static void setColor3(Color color3) {
+		DiagramView.color3 = color3;
+	}
+
+	public static Color getColorP() {
+		return colorP;
+	}
+
+	public static void setColorP(Color colorP) {
+		DiagramView.colorP = colorP;
+	}
+
+	public static Color getColorC() {
+		return colorC;
+	}
+
+	public static void setColorC(Color colorC) {
+		DiagramView.colorC = colorC;
+	}
+
+	public static Color getColorA() {
+		return colorA;
+	}
+
+	public static void setColorA(Color colorA) {
+		DiagramView.colorA = colorA;
+	}
+
+	public static Color getColorI() {
+		return colorI;
+	}
+
+	public static void setColorI(Color colorI) {
+		DiagramView.colorI = colorI;
 	}
 
 }

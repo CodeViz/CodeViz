@@ -22,6 +22,13 @@
             name="DiagramView"
             restorable="true">
       </view>
+      <view
+            category="com.codeviz.codeviz"
+            class="com.codeviz.codeviz.views.CustomizationView"
+            id="com.codeviz.codeviz.views.customizationView"
+            name="CustomizationView"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
