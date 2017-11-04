@@ -83,8 +83,8 @@ public class DiagramView extends ViewPart {
 
 	private Action zoom_in;
 	private Action zoom_out;
-	private Action redraw;
-	private Action customization;
+	private Action compact_mode_toggle;
+	private Action refresh;
 	
 	private ZoomManager zoomManager;
 
@@ -507,13 +507,13 @@ public class DiagramView extends ViewPart {
 		manager.add(new Separator());
 		manager.add(zoom_out);
 		manager.add(new Separator());
-		manager.add(redraw);
+		manager.add(compact_mode_toggle);
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
 		manager.add(zoom_in);
 		manager.add(zoom_out);
-		manager.add(redraw);
+		manager.add(compact_mode_toggle);
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
@@ -521,8 +521,8 @@ public class DiagramView extends ViewPart {
 	private void fillLocalToolBar(IToolBarManager manager) {
 		manager.add(zoom_in);
 		manager.add(zoom_out);
-		manager.add(redraw);
-		manager.add(customization);
+		manager.add(compact_mode_toggle);
+		manager.add(refresh);
 	}
 
 	private void makeActions() {
@@ -546,39 +546,26 @@ public class DiagramView extends ViewPart {
 		zoom_out.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 		
-		redraw = new Action() {
+		compact_mode_toggle = new Action() {
 			public void run() {
 				compact_mode = !compact_mode;
 				drawZestDiagram();
 				
 			}
 		};
-		redraw.setText(compact_mode? "show details" : "hide details" );
-		redraw.setToolTipText(compact_mode? "show Variables and Methods of classes" : "hide Variables and Methods of classes");
-		redraw.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+		compact_mode_toggle.setText(compact_mode? "show details" : "hide details" );
+		compact_mode_toggle.setToolTipText(compact_mode? "show Variables and Methods of classes" : "hide Variables and Methods of classes");
+		compact_mode_toggle.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 		
-		customization =  new Action() {
+		refresh =  new Action() {
 			public void run() {
-				Display display = new Display();
-			    Shell shell = new Shell(display);
-			    shell.setText("Color Chooser");
-			    createCustomizationWindowContent(shell);
-			    shell.pack();
-			    shell.open();
-			    while (!shell.isDisposed()) {
-			      if (!display.readAndDispatch()) {
-			        display.sleep();
-			      }
-			    }
-			    // Dispose the color we created for the Label
-			    
-			    display.dispose();
+				drawZestDiagram();
 			  }
 			};
-			customization.setText("Customize Visualization");
-			customization.setToolTipText("Open Customization Window");
-			customization.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+			refresh.setText("Refresh Visualization");
+			refresh.setToolTipText("Refresh/ Redraw Visualization");
+			refresh.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 		}
 		
