@@ -84,7 +84,7 @@ public class DiagramView extends ViewPart {
 	private Action zoom_in;
 	private Action zoom_out;
 	private Action compact_mode_toggle;
-	private Action refresh;
+	protected static Action refresh;
 	
 	private ZoomManager zoomManager;
 
@@ -699,6 +699,10 @@ public class DiagramView extends ViewPart {
 	@Override
 	public void setFocus() {
 
+	}
+	
+	public void updateDiagram(){
+		this.drawZestDiagram();
 	}
 	
 	private void showMessage(String message) {

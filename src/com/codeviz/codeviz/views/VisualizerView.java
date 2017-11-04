@@ -2,10 +2,17 @@ package com.codeviz.codeviz.views;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.e4.core.services.events.IEventBroker;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -100,6 +107,7 @@ public class VisualizerView extends ViewPart {
 	}
 
 	Text label;
+	Text query_bar;
 	String parsedSrc = null;
 
 	private ISelectionListener mylistener = new ISelectionListener() {
@@ -115,8 +123,33 @@ public class VisualizerView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		label = new Text(parent, SWT.WRAP);
+		parent.setLayout(new GridLayout(1,false));
+		query_bar = new Text(parent,SWT.BORDER | SWT.WRAP | SWT.LEFT);
+		GridData gridData = new GridData();
+		gridData.horizontalAlignment = SWT.FILL;
+		gridData.grabExcessHorizontalSpace = true;
+		query_bar.setLayoutData(gridData);
+		query_bar.addListener(SWT.Traverse, new Listener()
+	    {
+	        @Override
+	        public void handleEvent(Event event)
+	        {
+	            if(event.detail == SWT.TRAVERSE_RETURN)
+	            {
+	                showMessage("Enter Pressed: "+query_bar.getText());
+	            }
+	        }
+
+	    });
+		label = new Text(parent, SWT.WRAP | SWT.READ_ONLY | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 		label.setText("Open a java file to parse it.");
+		gridData = new GridData();
+		gridData.horizontalSpan = 2;
+		gridData.horizontalAlignment = SWT.FILL;
+		gridData.grabExcessHorizontalSpace = true;
+		gridData.verticalAlignment = SWT.FILL;
+		gridData.grabExcessVerticalSpace = true;
+		label.setLayoutData(gridData);
 
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
 
@@ -190,6 +223,14 @@ public class VisualizerView extends ViewPart {
 	public void dispose() {
 		getSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(mylistener);
 		super.dispose();
+	}
+	
+	private void showMessage(String message) {
+		//For Query Messages
+		MessageDialog.openInformation(
+			query_bar.getShell(),
+			"Visualizer View",
+			message);
 	}
 
 }
