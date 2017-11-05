@@ -3,8 +3,12 @@ package com.codeviz.codeviz.views;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.fieldassist.AutoCompleteField;
+import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -26,6 +30,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.codeviz.codeviz.Parser.ClassReader;
+import com.codeviz.codeviz.queryParser.QueryParser;
 
 /**
  * This sample class demonstrates how to plug-in a new workbench view. The view
@@ -108,6 +113,7 @@ public class VisualizerView extends ViewPart {
 
 	Text label;
 	Text query_bar;
+	AutoCompleteField autocomplete;
 	String parsedSrc = null;
 
 	private ISelectionListener mylistener = new ISelectionListener() {
@@ -125,6 +131,27 @@ public class VisualizerView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new GridLayout(1,false));
 		query_bar = new Text(parent,SWT.BORDER | SWT.WRAP | SWT.LEFT);
+		query_bar.setText("Enter Query here");
+		FocusListener fl = new FocusListener(){
+
+			@Override
+			public void focusGained(FocusEvent e) {
+				query_bar.setText("");
+				query_bar.removeFocusListener(this);
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		};
+		query_bar.addFocusListener(fl);
+		autocomplete = new AutoCompleteField(query_bar, new TextContentAdapter(), QueryParser.getProposals());
+		
+		
+		
 		GridData gridData = new GridData();
 		gridData.horizontalAlignment = SWT.FILL;
 		gridData.grabExcessHorizontalSpace = true;
@@ -136,8 +163,10 @@ public class VisualizerView extends ViewPart {
 	        {
 	            if(event.detail == SWT.TRAVERSE_RETURN)
 	            {
-	                showMessage("Enter Pressed: "+query_bar.getText());
-	            }
+	                label.setText(QueryParser.parseAction(query_bar.getText().trim()));
+	                query_bar.setText("");
+	                autocomplete = new AutoCompleteField(query_bar, new TextContentAdapter(), QueryParser.getProposals());
+	            }	            
 	        }
 
 	    });
