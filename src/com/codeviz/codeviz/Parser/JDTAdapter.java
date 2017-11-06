@@ -49,9 +49,11 @@ public class JDTAdapter {
 		
 		IJavaProject javaProject = getCurrentProject();
 		
+		if(javaProject == null) return new String[0];
+		
 		IPackageFragment[] packages;
 		try {
-			packages = javaProject .getPackageFragments();
+			packages = javaProject.getPackageFragments();
 		
 			for (IPackageFragment mypackage : packages) {
 				if (mypackage.getKind() == IPackageFragmentRoot.K_SOURCE) {

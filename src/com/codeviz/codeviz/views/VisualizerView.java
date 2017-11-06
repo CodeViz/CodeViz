@@ -3,6 +3,7 @@ package com.codeviz.codeviz.views;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.fieldassist.AutoCompleteField;
@@ -32,6 +33,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.codeviz.codeviz.Parser.ClassReader;
+import com.codeviz.codeviz.Parser.JDTAdapter;
 import com.codeviz.codeviz.queryParser.QueryParser;
 
 /**
@@ -102,7 +104,8 @@ public class VisualizerView extends ViewPart {
 				/** Using Eclipse JDT */
 				 IJavaElement javaElement =
 				 JavaUI.getEditorInputJavaElement(input);
-				 javaElement.getJavaProject();
+				 JDTAdapter.setCurrentProject(javaElement.getJavaProject());
+				 autocomplete = new AutoCompleteField(query_bar, new TextContentAdapter(), QueryParser.getProposals());
 				//
 				// if(javaElement != null){
 				// System.out.println(javaElement.getElementName());
