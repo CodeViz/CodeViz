@@ -2,6 +2,8 @@ package com.codeviz.codeviz.views;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.e4.core.services.events.IEventBroker;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.fieldassist.AutoCompleteField;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
@@ -98,8 +100,9 @@ public class VisualizerView extends ViewPart {
 				}
 
 				/** Using Eclipse JDT */
-				// IJavaElement javaElement =
-				// JavaUI.getEditorInputJavaElement(input);
+				 IJavaElement javaElement =
+				 JavaUI.getEditorInputJavaElement(input);
+				 javaElement.getJavaProject();
 				//
 				// if(javaElement != null){
 				// System.out.println(javaElement.getElementName());
@@ -164,6 +167,7 @@ public class VisualizerView extends ViewPart {
 	            if(event.detail == SWT.TRAVERSE_RETURN)
 	            {
 	                label.setText(QueryParser.parseAction(query_bar.getText().trim()));
+	                
 	                query_bar.setText("");
 	                autocomplete = new AutoCompleteField(query_bar, new TextContentAdapter(), QueryParser.getProposals());
 	            }	            

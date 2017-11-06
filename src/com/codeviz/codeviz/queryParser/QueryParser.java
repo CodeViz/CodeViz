@@ -2,13 +2,14 @@ package com.codeviz.codeviz.queryParser;
 
 import java.util.ArrayList;
 
+import com.codeviz.codeviz.Parser.JDTAdapter;
 import com.codeviz.codeviz.views.VisualizerView;
 
 public class QueryParser {
 
 	public static String[] getClassNames() {
-		// TODO Auto-generated method stub
-		return new String[] {"class1","class2","class3"};
+		System.out.println("called: getClassNames()");
+		return JDTAdapter.getProjectClasses();
 	}
 	
 	public static String[] getFunctions(){
