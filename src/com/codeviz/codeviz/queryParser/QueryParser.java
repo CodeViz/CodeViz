@@ -1,8 +1,13 @@
 package com.codeviz.codeviz.queryParser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.StringTokenizer;
+import java.util.stream.IntStream;
 
 import com.codeviz.codeviz.Parser.JDTAdapter;
+import com.codeviz.codeviz.views.DiagramView;
 import com.codeviz.codeviz.views.VisualizerView;
 
 public class QueryParser {
@@ -13,7 +18,7 @@ public class QueryParser {
 	}
 	
 	public static String[] getFunctions(){
-		return new String[] {"Find", "Count", "Focus"};
+		return new String[] {"Find", "Count", "Focus", "Draw"};
 	}
 	
 	public static String[] getProposals(){
@@ -29,6 +34,25 @@ public class QueryParser {
 	}
 	
 	public static String parseAction(String query){
+		//Assuming Queries follow this grammar: function [parameter1,[parameter2,...]] [modifier, modifier, ...]
+		
+		StringTokenizer query_tokens = new StringTokenizer(query);
+		
+		String function = query_tokens.nextToken();
+		
+		if(!Arrays.asList(getFunctions()).contains(function)){
+			return "Query function \""+function+"\" unrecognized: "+query;
+		}
+		if(function.equalsIgnoreCase("Draw")){
+			String class_name = query_tokens.nextToken();
+			if(!Arrays.asList(getClassNames()).contains(class_name))
+				return "Query class \""+class_name+"\" unrecognized: "+query;
+			LinkedList<String> modifiers = new LinkedList<String>();
+			while(query_tokens.hasMoreTokens())
+				modifiers.add(query_tokens.nextToken());
+			DiagramView.updateDiagram(modifiers.toArray(new String[modifiers.size()]));
+		}
+		
 		return "Command Detected: \n"+query;
 	}
 }

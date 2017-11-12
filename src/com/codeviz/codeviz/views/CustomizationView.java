@@ -95,7 +95,7 @@ public class CustomizationView extends ViewPart {
 	          color1 = new Color(parent.getDisplay(), rgb);
 	          DiagramView.setColor1(color1);
 	          color1Label.setBackground(color1);
-	          DiagramView.refresh.run();
+	          DiagramView.getRefreshAction().run();
 	        }
 	      }
 	    });
@@ -127,7 +127,7 @@ public class CustomizationView extends ViewPart {
 	          color2 = new Color(parent.getDisplay(), rgb);
 	          DiagramView.setColor2(color2);
 	          color2Label.setBackground(color2);
-	          DiagramView.refresh.run();
+	          DiagramView.getRefreshAction().run();
 	        }
 	      }
 	    });
@@ -159,7 +159,7 @@ public class CustomizationView extends ViewPart {
 	          color3 = new Color(parent.getDisplay(), rgb);
 	          DiagramView.setColor3(color3);
 	          color3Label.setBackground(color3);
-	          DiagramView.refresh.run();
+	          DiagramView.getRefreshAction().run();
 	        }
 	      }
 	    });
@@ -194,7 +194,7 @@ public class CustomizationView extends ViewPart {
 	          colorP = new Color(parent.getDisplay(), rgb);
 	          DiagramView.setColorP(colorP);
 	          colorPLabel.setBackground(colorP);
-	          DiagramView.refresh.run();
+	          DiagramView.getRefreshAction().run();
 	        }
 	      }
 	    });
@@ -226,7 +226,7 @@ public class CustomizationView extends ViewPart {
 	          colorC = new Color(parent.getDisplay(), rgb);
 	          DiagramView.setColorC(colorC);
 	          colorCLabel.setBackground(colorC);
-	          DiagramView.refresh.run();
+	          DiagramView.getRefreshAction().run();
 	        }
 	      }
 	    });
@@ -258,7 +258,7 @@ public class CustomizationView extends ViewPart {
 	          colorA = new Color(parent.getDisplay(), rgb);
 	          DiagramView.setColorA(colorA);
 	          colorALabel.setBackground(colorA);
-	          DiagramView.refresh.run();
+	          DiagramView.getRefreshAction().run();
 	        }
 	      }
 	    });
@@ -290,7 +290,7 @@ public class CustomizationView extends ViewPart {
 	          colorI = new Color(parent.getDisplay(), rgb);
 	          DiagramView.setColorI(colorI);
 	          colorILabel.setBackground(colorI);
-	          DiagramView.refresh.run();
+	          DiagramView.getRefreshAction().run();
 	        }
 	      }
 	    });

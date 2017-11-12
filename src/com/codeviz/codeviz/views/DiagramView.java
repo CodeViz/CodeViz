@@ -2,6 +2,7 @@ package com.codeviz.codeviz.views;
 
 import java.awt.BorderLayout;
 import java.awt.Rectangle;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -77,31 +78,31 @@ public class DiagramView extends ViewPart {
 	 */
 	public static final String ID = "com.codeviz.codeviz.views.DiagramView";
 
-	private Graph graph;
+	private static Graph graph;
 	private static GraphContainer target_class;
 	
 
-	private Action zoom_in;
-	private Action zoom_out;
-	private Action compact_mode_toggle;
-	protected static Action refresh;
+	private static Action zoom_in;
+	private static Action zoom_out;
+	private static Action compact_mode_toggle;
+	private static Action refresh;
 	
-	private ZoomManager zoomManager;
+	private static ZoomManager zoomManager;
 
-	private boolean compact_mode = true;
+	private static boolean compact_mode = true;
 	
-	private Map<String, GraphNode> nodesList = new HashMap<>();
-	private IEventBroker eventBroker;
+	private static Map<String, GraphNode> nodesList = new HashMap<>();
+	private static IEventBroker eventBroker;
 
 	String parsedSrc = "";
 
-	private String className = "";
-	private String parent = "";
-	private LinkedList<String> children = new LinkedList<>();
-	private LinkedList<String> interfaces = new LinkedList<>();
-	private LinkedList<String> associations = new LinkedList<>();
+	private static String className = "";
+	private static String parent = "";
+	private static LinkedList<String> children = new LinkedList<>();
+	private static LinkedList<String> interfaces = new LinkedList<>();
+	private static LinkedList<String> associations = new LinkedList<>();
 	
-	private MenuManager menuMgr;
+	private static MenuManager menuMgr;
 
 	private static Color color1 = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
 	private static Color color2 = Display.getCurrent().getSystemColor(SWT.COLOR_CYAN);
@@ -256,234 +257,6 @@ public class DiagramView extends ViewPart {
 
 	}
 	
-	private void createCustomizationWindowContent(Composite shell) {
-	    shell.setLayout(new GridLayout(2, false));
-
-	    
-	    setColor1(new Color(shell.getDisplay(),getColor1().getRGB()));
-	    setColor2(new Color(shell.getDisplay(),getColor2().getRGB()));
-	    setColor3(new Color(shell.getDisplay(),getColor3().getRGB()));
-	    
-	    setColorP(new Color(shell.getDisplay(),getColorP().getRGB()));
-	    setColorC(new Color(shell.getDisplay(),getColorC().getRGB()));
-	    setColorA(new Color(shell.getDisplay(),getColorA().getRGB()));
-	    setColorI(new Color(shell.getDisplay(),getColorI().getRGB()));
-
-	    // Use a label full of spaces to show the color
-	    final Label color1Label = new Label(shell, SWT.NONE);
-	    color1Label.setText("                              ");
-	    color1Label.setBackground(getColor1());
-	    
-	    final Label color2Label = new Label(shell, SWT.NONE);
-	    color2Label.setText("                              ");
-	    color2Label.setBackground(getColor2());
-	    
-	    final Label color3Label = new Label(shell, SWT.NONE);
-	    color3Label.setText("                              ");
-	    color3Label.setBackground(getColor3());
-	    
-	    
-	    
-	    
-	    final Label colorPLabel = new Label(shell, SWT.NONE);
-	    colorPLabel.setText("                              ");
-	    colorPLabel.setBackground(getColorP());
-	    
-	    final Label colorCLabel = new Label(shell, SWT.NONE);
-	    colorCLabel.setText("                              ");
-	    colorCLabel.setBackground(getColorC());
-	    
-	    final Label colorALabel = new Label(shell, SWT.NONE);
-	    colorALabel.setText("                              ");
-	    colorALabel.setBackground(getColorA());
-	    
-	    final Label colorILabel = new Label(shell, SWT.NONE);
-	    colorILabel.setText("                              ");
-	    colorILabel.setBackground(getColorI());
-
-	    Button button1 = new Button(shell, SWT.PUSH);
-	    button1.setText("Java-Specific Class Color");
-	    button1.addSelectionListener(new SelectionAdapter() {
-	      public void widgetSelected(SelectionEvent event) {
-	        // Create the color-change dialog
-	        ColorDialog dlg = new ColorDialog((Shell) shell);
-
-	        // Set the selected color in the dialog from
-	        // user's selected color
-	        dlg.setRGB(color1Label.getBackground().getRGB());
-
-	        // Change the title bar text
-	        dlg.setText("Choose a Color for Java-specific classes");
-
-	        // Open the dialog and retrieve the selected color
-	        RGB rgb = dlg.open();
-	        if (rgb != null) {
-	          // Dispose the old color, create the
-	          // new one, and set into the label
-	          getColor1().dispose();
-	          setColor1(new Color(shell.getDisplay(), rgb));
-	          color1Label.setBackground(getColor1());
-	        }
-	      }
-	    });
-	    
-	    Button button2 = new Button(shell, SWT.PUSH);
-	    button2.setText("Class Color");
-	    button2.addSelectionListener(new SelectionAdapter() {
-	      public void widgetSelected(SelectionEvent event) {
-	        // Create the color-change dialog
-	        ColorDialog dlg = new ColorDialog((Shell) shell);
-
-	        // Set the selected color in the dialog from
-	        // user's selected color
-	        dlg.setRGB(color2Label.getBackground().getRGB());
-
-	        // Change the title bar text
-	        dlg.setText("Choose a Color for your classes");
-
-	        // Open the dialog and retrieve the selected color
-	        RGB rgb = dlg.open();
-	        if (rgb != null) {
-	          // Dispose the old color, create the
-	          // new one, and set into the label
-	          getColor2().dispose();
-	          setColor2(new Color(shell.getDisplay(), rgb));
-	          color2Label.setBackground(getColor2());
-	        }
-	      }
-	    });
-	    
-	    Button button3 = new Button(shell, SWT.PUSH);
-	    button3.setText("Interface Color");
-	    button3.addSelectionListener(new SelectionAdapter() {
-	      public void widgetSelected(SelectionEvent event) {
-	        // Create the color-change dialog
-	        ColorDialog dlg = new ColorDialog((Shell) shell);
-
-	        // Set the selected color in the dialog from
-	        // user's selected color
-	        dlg.setRGB(color3Label.getBackground().getRGB());
-
-	        // Change the title bar text
-	        dlg.setText("Choose a Color for your interfaces");
-
-	        // Open the dialog and retrieve the selected color
-	        RGB rgb = dlg.open();
-	        if (rgb != null) {
-	          // Dispose the old color, create the
-	          // new one, and set into the label
-	          getColor3().dispose();
-	          setColor3(new Color(shell.getDisplay(), rgb));
-	          color3Label.setBackground(getColor3());
-	        }
-	      }
-	    });
-	    
-	    Button buttonP = new Button(shell, SWT.PUSH);
-	    buttonP.setText("Parent Class Link Color");
-	    buttonP.addSelectionListener(new SelectionAdapter() {
-	      public void widgetSelected(SelectionEvent event) {
-	        // Create the color-change dialog
-	        ColorDialog dlg = new ColorDialog((Shell) shell);
-
-	        // Set the selected color in the dialog from
-	        // user's selected color
-	        dlg.setRGB(colorPLabel.getBackground().getRGB());
-
-	        // Change the title bar text
-	        dlg.setText("Choose a Color for your parent class link");
-
-	        // Open the dialog and retrieve the selected color
-	        RGB rgb = dlg.open();
-	        if (rgb != null) {
-	          // Dispose the old color, create the
-	          // new one, and set into the label
-	          getColorP().dispose();
-	          setColorP(new Color(shell.getDisplay(), rgb));
-	          colorPLabel.setBackground(getColorP());
-	        }
-	      }
-	    });
-	    
-	    Button buttonC = new Button(shell, SWT.PUSH);
-	    buttonC.setText("Child Class Link Color");
-	    buttonC.addSelectionListener(new SelectionAdapter() {
-	      public void widgetSelected(SelectionEvent event) {
-	        // Create the color-change dialog
-	        ColorDialog dlg = new ColorDialog((Shell) shell);
-
-	        // Set the selected color in the dialog from
-	        // user's selected color
-	        dlg.setRGB(colorCLabel.getBackground().getRGB());
-
-	        // Change the title bar text
-	        dlg.setText("Choose a Color for your child class link");
-
-	        // Open the dialog and retrieve the selected color
-	        RGB rgb = dlg.open();
-	        if (rgb != null) {
-	          // Dispose the old color, create the
-	          // new one, and set into the label
-	          getColorC().dispose();
-	          setColorC(new Color(shell.getDisplay(), rgb));
-	          colorCLabel.setBackground(getColorC());
-	        }
-	      }
-	    });
-	    
-	    Button buttonI = new Button(shell, SWT.PUSH);
-	    buttonI.setText("Interface Link Color");
-	    buttonI.addSelectionListener(new SelectionAdapter() {
-	      public void widgetSelected(SelectionEvent event) {
-	        // Create the color-change dialog
-	        ColorDialog dlg = new ColorDialog((Shell) shell);
-
-	        // Set the selected color in the dialog from
-	        // user's selected color
-	        dlg.setRGB(colorILabel.getBackground().getRGB());
-
-	        // Change the title bar text
-	        dlg.setText("Choose a Color for your interface link");
-
-	        // Open the dialog and retrieve the selected color
-	        RGB rgb = dlg.open();
-	        if (rgb != null) {
-	          // Dispose the old color, create the
-	          // new one, and set into the label
-	          getColorI().dispose();
-	          setColorI(new Color(shell.getDisplay(), rgb));
-	          colorILabel.setBackground(getColorI());
-	        }
-	      }
-	    });
-	    
-	    Button buttonA = new Button(shell, SWT.PUSH);
-	    buttonA.setText("Associate Class Link Color");
-	    buttonA.addSelectionListener(new SelectionAdapter() {
-	      public void widgetSelected(SelectionEvent event) {
-	        // Create the color-change dialog
-	        ColorDialog dlg = new ColorDialog((Shell) shell);
-
-	        // Set the selected color in the dialog from
-	        // user's selected color
-	        dlg.setRGB(colorALabel.getBackground().getRGB());
-
-	        // Change the title bar text
-	        dlg.setText("Choose a Color for your associate class link");
-
-	        // Open the dialog and retrieve the selected color
-	        RGB rgb = dlg.open();
-	        if (rgb != null) {
-	          // Dispose the old color, create the
-	          // new one, and set into the label
-	          getColorA().dispose();
-	          setColorA(new Color(shell.getDisplay(), rgb));
-	          colorALabel.setBackground(getColorA());
-	        }
-	      }
-	    });
-	  }
-	
 
 	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
@@ -508,13 +281,14 @@ public class DiagramView extends ViewPart {
 		manager.add(zoom_out);
 		manager.add(new Separator());
 		manager.add(compact_mode_toggle);
+		manager.add(new Separator());
+		manager.add(refresh);
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
 		manager.add(zoom_in);
 		manager.add(zoom_out);
 		manager.add(compact_mode_toggle);
-		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
 	
@@ -558,9 +332,13 @@ public class DiagramView extends ViewPart {
 		compact_mode_toggle.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 		
-		refresh =  new Action() {
+		refresh = new Action() {
 			public void run() {
 				drawZestDiagram();
+			  }
+			
+			public void run(String[] modifiers) {
+				drawZestDiagram(modifiers);
 			  }
 			};
 			refresh.setText("Refresh Visualization");
@@ -571,7 +349,7 @@ public class DiagramView extends ViewPart {
 		
 	
 
-	public void prepareDiagram(Event e) {
+	public static void prepareDiagram(Event e) {
 
 		className = (String) e.getProperty(e.getPropertyNames()[0]);
 
@@ -586,7 +364,7 @@ public class DiagramView extends ViewPart {
 		drawZestDiagram();
 	}
 
-	private void clearGraph(Graph graph) {
+	private static void clearGraph(Graph graph) {
 
 		Object[] objects = graph.getConnections().toArray();
 		for (int i = 0; i < objects.length; i++) {
@@ -618,17 +396,15 @@ public class DiagramView extends ViewPart {
 
 	}
 
-	private void drawZestDiagram() {
-		// Create the Zest Diagram
-		clearGraph(this.graph);
+	private static void drawZestDiagram() {
+		clearGraph(graph);
 		
-//		graph.setSize(graph.getParent().getShell().getSize());
 		
 		GraphNode target_class = createNode(className);
 		
 		if (!parent.isEmpty()) {
 			GraphNode parent_class = createNode(parent);
-			GraphConnection target_parent_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_DIRECTED,
+			GraphConnection target_parent_connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED,
 					target_class, parent_class);
 			target_parent_connection.setLineColor(getColorP());
 			target_parent_connection.setText("Parent");
@@ -641,7 +417,7 @@ public class DiagramView extends ViewPart {
 			}
 
 			GraphNode associate_class = createNode(associate_name);
-			GraphConnection target_associate_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_SOLID,
+			GraphConnection target_associate_connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_SOLID,
 					target_class, associate_class);
 			target_associate_connection.setLineColor(getColorA());
 			target_associate_connection.setText("Association");
@@ -649,7 +425,7 @@ public class DiagramView extends ViewPart {
 
 		for (String child_name : children) {
 			GraphNode child_class = createNode(child_name);
-			GraphConnection target_child_connection = new GraphConnection(this.graph, ZestStyles.CONNECTIONS_DIRECTED,
+			GraphConnection target_child_connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED,
 					child_class, target_class);
 			target_child_connection.setLineColor(getColorC());
 			target_child_connection.setText("Child");
@@ -657,7 +433,7 @@ public class DiagramView extends ViewPart {
 
 		for (String interface_name : interfaces) {
 			GraphNode interface_comp = createNode(interface_name);
-			GraphConnection target_interface_connection = new GraphConnection(this.graph,
+			GraphConnection target_interface_connection = new GraphConnection(graph,
 					ZestStyles.CONNECTIONS_DASH_DOT, target_class, interface_comp);
 			target_interface_connection.setLineColor(getColorI());
 			target_interface_connection.setText("Interface");
@@ -669,10 +445,66 @@ public class DiagramView extends ViewPart {
 		
 		graph.applyLayout();
 	}
+	
+	private static void drawZestDiagram(String[] modifiers) {
+		clearGraph(graph);
+		
+		/* Modifiers:
+		 * 		-p to show parent
+		 * 		-c to show children
+		 * 		-a to show association
+		 * 		-i to show interfaces
+		 */
+		
+		
+		GraphNode target_class = createNode(className);
+		
+		if (!parent.isEmpty() && Arrays.asList(modifiers).contains("-p")) {
+			GraphNode parent_class = createNode(parent);
+			GraphConnection target_parent_connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED,
+					target_class, parent_class);
+			target_parent_connection.setLineColor(getColorP());
+			target_parent_connection.setText("Parent");
+		}
+		
+		if(Arrays.asList(modifiers).contains("-a"))
+			for (String associate_name : associations) {
+				if (parent.equals(associate_name) || interfaces.contains(associate_name)
+						|| children.contains(associate_name)) {
+					continue;
+				}
+	
+				GraphNode associate_class = createNode(associate_name);
+				GraphConnection target_associate_connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_SOLID,
+						target_class, associate_class);
+				target_associate_connection.setLineColor(getColorA());
+				target_associate_connection.setText("Association");
+			}
+		if(Arrays.asList(modifiers).contains("-c"))
+			for (String child_name : children) {
+				GraphNode child_class = createNode(child_name);
+				GraphConnection target_child_connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED,
+						child_class, target_class);
+				target_child_connection.setLineColor(getColorC());
+				target_child_connection.setText("Child");
+			}
+		if(Arrays.asList(modifiers).contains("-i"))
+			for (String interface_name : interfaces) {
+				GraphNode interface_comp = createNode(interface_name);
+				GraphConnection target_interface_connection = new GraphConnection(graph,
+						ZestStyles.CONNECTIONS_DASH_DOT, target_class, interface_comp);
+				target_interface_connection.setLineColor(getColorI());
+				target_interface_connection.setText("Interface");
+			}
 
-	private GraphNode createNode(String className) {
+		graph.setLayoutAlgorithm(new SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+		
+		graph.applyLayout();
+	}
+
+	private static GraphNode createNode(String className) {
 		if (!nodesList.containsKey(className)) {
-			nodesList.put(className, new GraphNode(this.graph, SWT.NONE, ClassReader.getClassDetails(className, compact_mode)));
+			nodesList.put(className, new GraphNode(graph, SWT.NONE, ClassReader.getClassDetails(className, compact_mode)));
 
 			Color c = null;
 
@@ -701,8 +533,12 @@ public class DiagramView extends ViewPart {
 
 	}
 	
-	public void updateDiagram(){
-		this.drawZestDiagram();
+	public static void updateDiagram(){
+		drawZestDiagram();
+	}
+	
+	public static void updateDiagram(String[] modifiers){
+		drawZestDiagram(modifiers);
 	}
 	
 	private void showMessage(String message) {
@@ -772,5 +608,11 @@ public class DiagramView extends ViewPart {
 	public static void setColorI(Color colorI) {
 		DiagramView.colorI = colorI;
 	}
+	
+	public static Action getRefreshAction(){
+		return refresh;
+	}
+
+	
 
 }
