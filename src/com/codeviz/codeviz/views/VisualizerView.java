@@ -169,10 +169,10 @@ public class VisualizerView extends ViewPart {
 	        {
 	            if(event.detail == SWT.TRAVERSE_RETURN)
 	            {
+	            	autocomplete = new AutoCompleteField(query_bar, new TextContentAdapter(), QueryParser.getProposals());
 	                label.setText(QueryParser.parseAction(query_bar.getText().trim()));
 	                
 	                query_bar.setText("");
-	                autocomplete = new AutoCompleteField(query_bar, new TextContentAdapter(), QueryParser.getProposals());
 	            }	            
 	        }
 

@@ -11,14 +11,14 @@ import com.codeviz.codeviz.views.DiagramView;
 import com.codeviz.codeviz.views.VisualizerView;
 
 public class QueryParser {
-
+	private static String[] atomic_functions = {"zi","zo"};
 	public static String[] getClassNames() {
 		System.out.println("called: getClassNames()");
 		return JDTAdapter.getProjectClasses();
 	}
 	
 	public static String[] getFunctions(){
-		return new String[] {"Find", "Count", "Focus", "Draw"};
+		return new String[] {"Find", "Count", "Focus", "Draw", "zi", "zo"};
 	}
 	
 	public static String[] getProposals(){
@@ -26,9 +26,10 @@ public class QueryParser {
 		String[] functions = getFunctions();
 		ArrayList<String> proposals = new ArrayList<String>();
 		for(String function: functions){
-			for(String class_name: classes){
-				proposals.add(function+' '+class_name);
-			}
+//			if(!Arrays.asList(atomic_functions).contains(function))
+				for(String class_name: classes){
+					proposals.add(function+' '+class_name);
+				}
 		}
 		return  proposals.toArray(new String[]{});
 	}
@@ -51,6 +52,15 @@ public class QueryParser {
 			while(query_tokens.hasMoreTokens())
 				modifiers.add(query_tokens.nextToken());
 			DiagramView.updateDiagram(modifiers.toArray(new String[modifiers.size()]));
+			return "Successful Query: \""+query+"\"";
+		}
+		if(function.equalsIgnoreCase("zi")){
+			DiagramView.getZoomInAction().run();
+			return "Successful Query: \""+query+"\"";
+		}
+		if(function.equalsIgnoreCase("zo")){
+			DiagramView.getZoomOutAction().run();
+			return "Successful Query: \""+query+"\"";
 		}
 		
 		return "Command Detected: \n"+query;

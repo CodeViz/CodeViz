@@ -612,6 +612,14 @@ public class DiagramView extends ViewPart {
 	public static Action getRefreshAction(){
 		return refresh;
 	}
+	
+	public static Action getZoomInAction(){
+		return zoom_in;
+	}
+	
+	public static Action getZoomOutAction(){
+		return zoom_out;
+	}
 
 	
 
