@@ -112,6 +112,8 @@ public class DiagramView extends ViewPart {
 	private static Color colorA = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
 	private static Color colorC = Display.getCurrent().getSystemColor(SWT.COLOR_MAGENTA);
 	private static Color colorI = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_YELLOW);
+	
+	private static int threshold = 4;
 
 	public DiagramView() {
 	}
@@ -228,6 +230,22 @@ public class DiagramView extends ViewPart {
 					System.out.println(selectedClassName);
 
 					JDTAdapter.openEditor(selectedClassName);
+				}else if( selectedItem instanceof GraphConnection){
+					GraphConnection selectedConnection = (GraphConnection) selectedItem;
+					String selectedConnectionType = selectedConnection.getText();
+					if(selectedConnectionType.equals("Association")){
+						GraphNode source = selectedConnection.getSource();
+						String source_name = source.getText();
+						if(source_name.contains("\n"))
+							source_name = source_name.substring(0, source_name.indexOf("\n"));
+						
+						GraphNode dest = selectedConnection.getDestination();
+						String dest_name = source.getText();
+						if(dest_name.contains("\n"))
+							dest_name = dest_name.substring(0, dest_name.indexOf("\n"));
+						
+						//TODO call parser link method here.
+					}
 				}
 				
 

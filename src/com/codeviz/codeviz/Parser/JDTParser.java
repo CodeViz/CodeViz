@@ -202,4 +202,7 @@ public class JDTParser {
 	public static String getClassType(String className) {
 		return JDTAdapter.getClassType(className);
 	}
+	
+	
+	
 }
