@@ -639,6 +639,14 @@ public class DiagramView extends ViewPart {
 		return zoom_out;
 	}
 
+	public static int getThreshold() {
+		return threshold;
+	}
+
+	public static void setThreshold(int threshold) {
+		DiagramView.threshold = threshold;
+	}
+
 	
 
 }

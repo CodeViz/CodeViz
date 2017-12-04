@@ -17,7 +17,7 @@ public class QueryParser {
 	}
 	
 	public static String[] getFunctions(){
-		return new String[] {"Find", "Count", "Focus", "Draw", "zi", "zo"};
+		return new String[] {"find", "count", "focus", "draw", "zi", "zo", "link"};
 	}
 	
 	public static String[] getProposals(){
@@ -66,6 +66,16 @@ public class QueryParser {
 		}
 		if(function.equalsIgnoreCase("zo")){
 			DiagramView.getZoomOutAction().run();
+			return "Successful Query: \""+query+"\"";
+		}
+		if(function.equalsIgnoreCase("Link")){
+			String class_a = query_tokens.nextToken();
+			String class_b = query_tokens.nextToken();
+			int threshold = DiagramView.getThreshold();
+			if(query_tokens.hasMoreTokens())
+				threshold = Integer.parseInt(query_tokens.nextToken());
+			
+			//TODO call parser link method here
 			return "Successful Query: \""+query+"\"";
 		}
 		
