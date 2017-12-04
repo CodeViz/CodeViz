@@ -13,7 +13,6 @@ import com.codeviz.codeviz.views.VisualizerView;
 public class QueryParser {
 	private static String[] atomic_functions = {"zi","zo"};
 	public static String[] getClassNames() {
-		System.out.println("called: getClassNames()");
 		return JDTAdapter.getProjectClasses();
 	}
 	
@@ -25,6 +24,9 @@ public class QueryParser {
 		String[] classes = getClassNames();
 		String[] functions = getFunctions();
 		ArrayList<String> proposals = new ArrayList<String>();
+		
+		if(classes.length == 0) classes = new String[]{""};		
+		
 		for(String function: functions){
 //			if(!Arrays.asList(atomic_functions).contains(function))
 				for(String class_name: classes){
@@ -48,10 +50,14 @@ public class QueryParser {
 			String class_name = query_tokens.nextToken();
 			if(!Arrays.asList(getClassNames()).contains(class_name))
 				return "Query class \""+class_name+"\" unrecognized: "+query;
-			LinkedList<String> modifiers = new LinkedList<String>();
-			while(query_tokens.hasMoreTokens())
-				modifiers.add(query_tokens.nextToken());
-			DiagramView.updateDiagram(modifiers.toArray(new String[modifiers.size()]));
+			
+			
+			JDTAdapter.openEditor(class_name);
+			
+//			LinkedList<String> modifiers = new LinkedList<String>();
+//			while(query_tokens.hasMoreTokens())
+//				modifiers.add(query_tokens.nextToken());
+//			DiagramView.updateDiagram(modifiers.toArray(new String[modifiers.size()]));
 			return "Successful Query: \""+query+"\"";
 		}
 		if(function.equalsIgnoreCase("zi")){

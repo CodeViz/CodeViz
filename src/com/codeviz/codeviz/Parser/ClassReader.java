@@ -1,52 +1,49 @@
 package com.codeviz.codeviz.Parser;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class ClassReader {
 
-	public static LinkedList<String> readClasses(String folder) {
-		return new LinkedList<>(Parser.readClasses(folder));
-	}
-
 	public static void parseClass(String className) {
-		Parser.parse(className);
+		JDTParser.parse(className);
 	}
 
-	public static LinkedList<String> onChanged(String folder) {
-		return new LinkedList<>(Parser.readClasses(folder));
-	}
 
 	public static String readParent() {
-		return Parser.getParent();
+		return JDTParser.getParent();
 	}
 
 	public static LinkedList<String> readChildren() {
-		return Parser.getChildren();
+		return JDTParser.getChildren();
 	}
 
 	public static LinkedList<String> readInterfaces() {
-		return Parser.getInterfaces();
+		return JDTParser.getInterfaces();
 	}
 
 	public static LinkedList<String> readAssociations() {
-		return Parser.getAssociations();
+		return JDTParser.getAssociations();
 	}
 
 	public static LinkedList<String> readAttributes() {
-		return Parser.getAttributes();
+		return JDTParser.getAttributes();
 	}
 
 	public static LinkedList<String> readMethods() {
-		return Parser.getMethods();
+		return JDTParser.getMethods();
 	}
 
 	public static String getClassDetails(String className, boolean compact) {
-		return Parser.getClassDetails(className, compact);
+		return JDTParser.getClassDetails(className, compact);
 	}
 	
 	public static String getClassType(String className) {
-		return Parser.getClassType(className);
+		return JDTParser.getClassType(className);
 	}
 	
 	
+	public static <T> LinkedList<T> asLL(T[] array) {
+		return new LinkedList<T>(Arrays.asList(array));
+	}
 }

@@ -1,9 +1,9 @@
 package com.codeviz.codeviz.views;
 
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.e4.core.services.events.IEventBroker;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.fieldassist.AutoCompleteField;
@@ -12,19 +12,16 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener2;
-import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
@@ -94,24 +91,25 @@ public class VisualizerView extends ViewPart {
 			if (partRef.getPart(true) instanceof IEditorPart) {
 				IEditorPart editor = (IEditorPart) partRef.getPart(true);
 				IEditorInput input = editor == null ? null : editor.getEditorInput();
-				IPath path = input instanceof IPathEditorInput ? ((IPathEditorInput) input).getPath() : null;
-				if (path != null) {
-
-					new Thread(() -> parseFile(path)).start();
-
-				}
 
 				/** Using Eclipse JDT */
-				 IJavaElement javaElement =
-				 JavaUI.getEditorInputJavaElement(input);
-				 JDTAdapter.setCurrentProject(javaElement.getJavaProject());
-				 autocomplete = new AutoCompleteField(query_bar, new TextContentAdapter(), QueryParser.getProposals());
-				//
-				// if(javaElement != null){
-				// System.out.println(javaElement.getElementName());
-				// } else {
-				// System.out.println("null");
-				// }
+				IJavaElement javaElement = JavaUI.getEditorInputJavaElement(input);
+				if (JDTAdapter.getCurrentProject() != javaElement.getJavaProject()) {
+					JDTAdapter.setCurrentProject(javaElement.getJavaProject());
+					 autocomplete.setProposals(QueryParser.getProposals());
+				}
+
+				if (javaElement instanceof ICompilationUnit) {
+					ICompilationUnit cu = (ICompilationUnit) javaElement;
+					try {
+						String name = cu.getTypes()[0].getElementName();
+						new Thread(() -> readClassInfo(name)).start();
+						
+					} catch (JavaModelException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
 
 		}
@@ -169,8 +167,8 @@ public class VisualizerView extends ViewPart {
 	        {
 	            if(event.detail == SWT.TRAVERSE_RETURN)
 	            {
-	            	autocomplete = new AutoCompleteField(query_bar, new TextContentAdapter(), QueryParser.getProposals());
-	                label.setText(QueryParser.parseAction(query_bar.getText().trim()));
+//	            	autocomplete.setProposals(QueryParser.getProposals());
+	                QueryParser.parseAction(query_bar.getText().trim());
 	                
 	                query_bar.setText("");
 	            }	            
@@ -194,21 +192,6 @@ public class VisualizerView extends ViewPart {
 		activePage.addPartListener(new PartListener());
 	}
 
-	private void parseFile(IPath path) {
-
-		String src = path.toOSString().replaceAll("(.*src).*", "$1");
-		// System.out.println(src);
-
-		String className = path.segment(path.segmentCount() - 1).replace(".java", "");
-		if (src.equals(parsedSrc)) {
-			readClassInfo(className);
-		} else {
-			ClassReader.readClasses(src);
-			parsedSrc = src;
-			readClassInfo(className);
-		}
-
-	}
 
 	public void readClassInfo(String class_name) {
 		System.out.println("Class Detected: " + class_name);
