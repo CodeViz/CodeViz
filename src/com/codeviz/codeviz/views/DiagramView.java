@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.jface.action.Action;
@@ -49,10 +50,12 @@ import org.eclipse.zest.core.widgets.GraphNode;
 import org.eclipse.zest.core.widgets.ZestStyles;
 import org.eclipse.zest.layouts.LayoutStyles;
 import org.eclipse.zest.layouts.algorithms.SpringLayoutAlgorithm;
+import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
 import org.osgi.service.event.Event;
 
 import com.codeviz.codeviz.Parser.ClassReader;
 import com.codeviz.codeviz.Parser.JDTAdapter;
+import com.codeviz.codeviz.queryParser.QueryParser;
 
 
 
@@ -383,7 +386,6 @@ public class DiagramView extends ViewPart {
 	}
 
 	private static void clearGraph(Graph graph) {
-
 		Object[] objects = graph.getConnections().toArray();
 		for (int i = 0; i < objects.length; i++) {
 			GraphConnection graCon = (GraphConnection) objects[i];
@@ -394,9 +396,9 @@ public class DiagramView extends ViewPart {
 		objects = graph.getNodes().toArray();
 		for (int i = 0; i < objects.length; i++) {
 			GraphNode graNode = (GraphNode) objects[i];
-			String name = graNode.getText();
+			String name = graNode.getText().trim();
 
-			if (name.contains("\n")) {
+			if (name.contains("\n") || name.contains(" ")) {
 				name = name.substring(0, name.indexOf("\n"));
 			}
 
@@ -411,57 +413,93 @@ public class DiagramView extends ViewPart {
 
 		if (target_class != null)
 			target_class.dispose();
+	}
+	
+	private static void clearLinkDiagram(Graph graph) {
+		Object[] objects = graph.getConnections().toArray();
+		for (int i = 0; i < objects.length; i++) {
+			GraphConnection graCon = (GraphConnection) objects[i];
+			if (!graCon.isDisposed())
+				graCon.dispose();
+		}
 
+		objects = graph.getNodes().toArray();
+		for (int i = 0; i < objects.length; i++) {
+			GraphNode graNode = (GraphNode) objects[i];
+			String name = graNode.getText().trim();
+
+			if (name.contains("\n") || name.contains(" ")) {
+				name = name.substring(0, name.indexOf("\n"));
+			}
+
+//			if (name.equals(className) || name.equals(parent) || associations.contains(name) || children.contains(name)
+//					|| interfaces.contains(name))
+//				continue;
+
+			if (!graNode.isDisposed())
+				graNode.dispose();
+			
+		}
+
+		if (target_class != null)
+			target_class.dispose();
+		
+		nodesList.clear();
 	}
 
 	private static void drawZestDiagram() {
 		clearGraph(graph);
 		
+		if(!QueryParser.getModifiers().isEmpty()){
+			drawZestDiagram(QueryParser.getModifiers().toArray(new String[QueryParser.getModifiers().size()]));
+			QueryParser.setModifiers(new LinkedList<String>());
+		}else{
 		
-		GraphNode target_class = createNode(className);
-		
-		if (!parent.isEmpty()) {
-			GraphNode parent_class = createNode(parent);
-			GraphConnection target_parent_connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED,
-					target_class, parent_class);
-			target_parent_connection.setLineColor(getColorP());
-			target_parent_connection.setText("Parent");
-		}
-
-		for (String associate_name : associations) {
-			if (parent.equals(associate_name) || interfaces.contains(associate_name)
-					|| children.contains(associate_name)) {
-				continue;
+			GraphNode target_class = createNode(className);
+			
+			if (!parent.isEmpty()) {
+				GraphNode parent_class = createNode(parent);
+				GraphConnection target_parent_connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED,
+						target_class, parent_class);
+				target_parent_connection.setLineColor(getColorP());
+				target_parent_connection.setText("Parent");
 			}
-
-			GraphNode associate_class = createNode(associate_name);
-			GraphConnection target_associate_connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_SOLID,
-					target_class, associate_class);
-			target_associate_connection.setLineColor(getColorA());
-			target_associate_connection.setText("Association");
+	
+			for (String associate_name : associations) {
+				if (parent.equals(associate_name) || interfaces.contains(associate_name)
+						|| children.contains(associate_name)) {
+					continue;
+				}
+	
+				GraphNode associate_class = createNode(associate_name);
+				GraphConnection target_associate_connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_SOLID,
+						target_class, associate_class);
+				target_associate_connection.setLineColor(getColorA());
+				target_associate_connection.setText("Association");
+			}
+	
+			for (String child_name : children) {
+				GraphNode child_class = createNode(child_name);
+				GraphConnection target_child_connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED,
+						child_class, target_class);
+				target_child_connection.setLineColor(getColorC());
+				target_child_connection.setText("Child");
+			}
+	
+			for (String interface_name : interfaces) {
+				GraphNode interface_comp = createNode(interface_name);
+				GraphConnection target_interface_connection = new GraphConnection(graph,
+						ZestStyles.CONNECTIONS_DASH_DOT, target_class, interface_comp);
+				target_interface_connection.setLineColor(getColorI());
+				target_interface_connection.setText("Interface");
+			}
+	
+			graph.setLayoutAlgorithm(new SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+	//		org.eclipse.swt.graphics.Rectangle r = graph.getClientArea();
+	//		graph.setSize(graph, r.width);
+			
+			graph.applyLayout();
 		}
-
-		for (String child_name : children) {
-			GraphNode child_class = createNode(child_name);
-			GraphConnection target_child_connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED,
-					child_class, target_class);
-			target_child_connection.setLineColor(getColorC());
-			target_child_connection.setText("Child");
-		}
-
-		for (String interface_name : interfaces) {
-			GraphNode interface_comp = createNode(interface_name);
-			GraphConnection target_interface_connection = new GraphConnection(graph,
-					ZestStyles.CONNECTIONS_DASH_DOT, target_class, interface_comp);
-			target_interface_connection.setLineColor(getColorI());
-			target_interface_connection.setText("Interface");
-		}
-
-		graph.setLayoutAlgorithm(new SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
-//		org.eclipse.swt.graphics.Rectangle r = graph.getClientArea();
-//		graph.setSize(graph, r.width);
-		
-		graph.applyLayout();
 	}
 	
 	private static void drawZestDiagram(String[] modifiers) {
@@ -544,6 +582,53 @@ public class DiagramView extends ViewPart {
 		}
 
 		return nodesList.get(className);
+	}
+	
+	public static void drawLinkDiagram(LinkedList<LinkedList<String>> links){
+		clearLinkDiagram(graph);
+		System.out.println("Nodes: "+graph.getNodes().size());
+		
+		for(LinkedList<String> path: links){
+			StringTokenizer query_tokens;
+			LinkedList<GraphNode> nodes = new LinkedList<GraphNode>();
+			System.out.println("Path: "+path.size());
+			for(String class_name: path){
+				GraphNode class_node = createNode(class_name);
+				nodes.add(class_node);
+			}
+			System.out.println("Registered Nodes: "+nodes.size());
+			nodes.getFirst().setBackgroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+			nodes.getLast().setBackgroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+			for(int i = 0; i < nodes.size() - 1; i++){
+				System.out.println("Sub Registered Nodes: "+nodes.size());
+				if(nodes.get(i).isDisposed()){
+					System.out.println("Disposed Node: "+i);
+					continue;
+				}
+				query_tokens = new StringTokenizer(nodes.get(i).getText());
+//				System.out.println(query_tokens.countTokens());
+				nodes.get(i).setText(query_tokens.nextToken());
+				String link = "";
+				if(query_tokens.hasMoreTokens())
+					link = query_tokens.nextToken();
+				
+//				query_tokens = new StringTokenizer(nodes.get(i+1).getText());
+//				nodes.get(i+1).setText(query_tokens.nextToken());
+				
+				GraphConnection link_connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED,
+						nodes.get(i), nodes.get(i+1));
+				link_connection.setLineColor(getColorP());
+				link_connection.setText(link);
+			}
+			query_tokens = new StringTokenizer(nodes.getLast().getText());
+			nodes.getLast().setText(query_tokens.nextToken());
+			nodes.clear();
+		}
+		
+		
+		graph.setLayoutAlgorithm(new SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+		
+		graph.applyLayout();
 	}
 
 	@Override

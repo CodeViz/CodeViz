@@ -115,7 +115,7 @@ public class VisualizerView extends ViewPart {
 		}
 	}
 
-	Text label;
+	static Text label;
 	Text query_bar;
 	AutoCompleteField autocomplete;
 	String parsedSrc = null;
@@ -183,7 +183,7 @@ public class VisualizerView extends ViewPart {
 		gridData.grabExcessHorizontalSpace = true;
 		gridData.verticalAlignment = SWT.FILL;
 		gridData.grabExcessVerticalSpace = true;
-		label.setLayoutData(gridData);
+		getLabel().setLayoutData(gridData);
 
 		eventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
 
@@ -200,7 +200,7 @@ public class VisualizerView extends ViewPart {
 		String associates = "";
 		String interfaces = "";
 
-		Display.getDefault().asyncExec(() -> label.setText("Parsing..."));
+		Display.getDefault().asyncExec(() -> getLabel().setText("Parsing..."));
 		ClassReader.parseClass(class_name);
 
 		text += "Class: " + class_name + "\n===============\n";
@@ -229,13 +229,13 @@ public class VisualizerView extends ViewPart {
 		// System.out.println(text);
 		final String fText = text;
 
-		Display.getDefault().asyncExec(() -> label.setText(fText));
+		Display.getDefault().asyncExec(() -> getLabel().setText(fText));
 		eventBroker.post(EventTopic.PARSER_DONE, class_name);
 	}
 
 	@Override
 	public void setFocus() {
-		label.setFocus();
+		getLabel().setFocus();
 	}
 
 	@Override
@@ -250,6 +250,14 @@ public class VisualizerView extends ViewPart {
 			query_bar.getShell(),
 			"Visualizer View",
 			message);
+	}
+
+	public static Text getLabel() {
+		return label;
+	}
+
+	public static void setLabel(Text label) {
+		label = label;
 	}
 
 }
