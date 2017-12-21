@@ -47,7 +47,8 @@ public class JDTParser {
 	public static LinkedList<String> getChildren() {
 		try {
 			ITypeHierarchy subHierarchy = currentClass.newTypeHierarchy(null);
-			IType[] children = subHierarchy.getAllSubtypes(currentClass);
+//			IType[] children = subHierarchy.getAllSubtypes(currentClass);
+			IType[] children = subHierarchy.getSubclasses(currentClass);
 			LinkedList<String> names = new LinkedList<>();
 			for (IType child : children) {
 				names.add(child.getElementName());
