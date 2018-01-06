@@ -18,7 +18,7 @@ public class QueryParser {
 	}
 	
 	public static String[] getFunctions(){
-		return new String[] {"find", "count", "focus", "draw", "zi", "zo", "link", "help"};
+		return new String[] {"draw", "zi", "zo", "help"};
 	}
 	
 	public static String[] getProposals(){
@@ -81,35 +81,11 @@ public class QueryParser {
 		
 		
 		if(function.equalsIgnoreCase("help")){
-			String help = "Queries:\ndraw CLASSNAME\nlink ClassA ClassB\nzi\nzo\n";
+			String help = "Queries:\ndraw CLASSNAME\nzi\nzo\n";
 			VisualizerView.getLabel().setText(help);
 			return "Successful Query: \""+query+"\"";
 		}
 		
-		
-		if(function.equalsIgnoreCase("Link")){
-			String class_a = query_tokens.nextToken();
-			String class_b = query_tokens.nextToken();
-			int threshold = DiagramView.getThreshold();
-			if(query_tokens.hasMoreTokens())
-				threshold = Integer.parseInt(query_tokens.nextToken());
-			LinkedList<LinkedList<String>> paths = new LinkedList<LinkedList<String>>();
-			
-			
-			for(int j = 0; j < 3; j++){
-				paths.add(new LinkedList<String>());
-				paths.get(j).add(class_a);
-				String link = ""+j;
-				paths.get(j).add("EnemyShipShooter");
-				for( int i = j*10; i < j*10 + 5; i++)
-					paths.get(j).add("C:"+i+" "+link);
-				paths.get(j).add(class_b);
-			}
-			
-			DiagramView.drawLinkDiagram(paths);
-			//TODO call parser link method here
-			return "Successful Query: \""+query+"\"";
-		}
 		
 		return "Command Detected: \n"+query;
 	}

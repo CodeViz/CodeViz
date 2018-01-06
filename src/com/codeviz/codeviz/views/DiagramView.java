@@ -345,13 +345,18 @@ public class DiagramView extends ViewPart {
 			public void run() {
 				compact_mode = !compact_mode;
 				drawZestDiagram();
-				
+				if(compact_mode)
+					compact_mode_toggle.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+						getImageDescriptor(ISharedImages.IMG_ELCL_COLLAPSEALL_DISABLED));
+				else
+					compact_mode_toggle.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+							getImageDescriptor(ISharedImages.IMG_ELCL_COLLAPSEALL));
 			}
 		};
 		compact_mode_toggle.setText(compact_mode? "show details" : "hide details" );
 		compact_mode_toggle.setToolTipText(compact_mode? "show Variables and Methods of classes" : "hide Variables and Methods of classes");
 		compact_mode_toggle.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+			getImageDescriptor(ISharedImages.IMG_ELCL_COLLAPSEALL_DISABLED));
 		
 		refresh = new Action() {
 			public void run() {
@@ -365,7 +370,7 @@ public class DiagramView extends ViewPart {
 			refresh.setText("Refresh Visualization");
 			refresh.setToolTipText("Refresh/ Redraw Visualization");
 			refresh.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+			getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
 		}
 		
 	
@@ -415,38 +420,7 @@ public class DiagramView extends ViewPart {
 			target_class.dispose();
 	}
 	
-	private static void clearLinkDiagram(Graph graph) {
-		Object[] objects = graph.getConnections().toArray();
-		for (int i = 0; i < objects.length; i++) {
-			GraphConnection graCon = (GraphConnection) objects[i];
-			if (!graCon.isDisposed())
-				graCon.dispose();
-		}
-
-		objects = graph.getNodes().toArray();
-		for (int i = 0; i < objects.length; i++) {
-			GraphNode graNode = (GraphNode) objects[i];
-			String name = graNode.getText().trim();
-
-			if (name.contains("\n") || name.contains(" ")) {
-				name = name.substring(0, name.indexOf("\n"));
-			}
-
-//			if (name.equals(className) || name.equals(parent) || associations.contains(name) || children.contains(name)
-//					|| interfaces.contains(name))
-//				continue;
-
-			if (!graNode.isDisposed())
-				graNode.dispose();
-			
-		}
-
-		if (target_class != null)
-			target_class.dispose();
-		
-		nodesList.clear();
-	}
-
+	
 	private static void drawZestDiagram() {
 		clearGraph(graph);
 		
@@ -584,53 +558,7 @@ public class DiagramView extends ViewPart {
 		return nodesList.get(className);
 	}
 	
-	public static void drawLinkDiagram(LinkedList<LinkedList<String>> links){
-		clearLinkDiagram(graph);
-		System.out.println("Nodes: "+graph.getNodes().size());
-		
-		for(LinkedList<String> path: links){
-			StringTokenizer query_tokens;
-			LinkedList<GraphNode> nodes = new LinkedList<GraphNode>();
-			System.out.println("Path: "+path.size());
-			for(String class_name: path){
-				GraphNode class_node = createNode(class_name);
-				nodes.add(class_node);
-			}
-			System.out.println("Registered Nodes: "+nodes.size());
-			nodes.getFirst().setBackgroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
-			nodes.getLast().setBackgroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
-			for(int i = 0; i < nodes.size() - 1; i++){
-				System.out.println("Sub Registered Nodes: "+nodes.size());
-				if(nodes.get(i).isDisposed()){
-					System.out.println("Disposed Node: "+i);
-					continue;
-				}
-				query_tokens = new StringTokenizer(nodes.get(i).getText());
-//				System.out.println(query_tokens.countTokens());
-				nodes.get(i).setText(query_tokens.nextToken());
-				String link = "";
-				if(query_tokens.hasMoreTokens())
-					link = query_tokens.nextToken();
-				
-//				query_tokens = new StringTokenizer(nodes.get(i+1).getText());
-//				nodes.get(i+1).setText(query_tokens.nextToken());
-				
-				GraphConnection link_connection = new GraphConnection(graph, ZestStyles.CONNECTIONS_DIRECTED,
-						nodes.get(i), nodes.get(i+1));
-				link_connection.setLineColor(getColorP());
-				link_connection.setText(link);
-			}
-			query_tokens = new StringTokenizer(nodes.getLast().getText());
-			nodes.getLast().setText(query_tokens.nextToken());
-			nodes.clear();
-		}
-		
-		
-		graph.setLayoutAlgorithm(new SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
-		
-		graph.applyLayout();
-	}
-
+	
 	@Override
 	public void setFocus() {
 
